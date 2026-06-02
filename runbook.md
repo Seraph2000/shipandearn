@@ -15,13 +15,17 @@
 
 ---
 
-### 2. Point your domain (optional but recommended)
+### 2. Point your domain
 
-In your DNS provider, add an **A record**:
+Domain **earnstack.dev** is registered with Cloudflare Registrar.
+
+In the Cloudflare dashboard (dash.cloudflare.com → earnstack.dev → DNS), add two **A records**:
 ```
 @   →   <droplet-ip>
 www →   <droplet-ip>
 ```
+
+Proxy status: **DNS only** (grey cloud) to start — switch to **Proxied** later if you want Cloudflare's CDN/DDoS protection.
 
 ---
 
