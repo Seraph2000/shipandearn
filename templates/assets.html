@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}Assets — Earnstack{% endblock %}
+
+{% set tier_labels = {
+  'quick-win':  'Quick Win',
+  'medium':     'Medium Build',
+  'micro-saas': 'Micro-SaaS',
+  'saas':       'SaaS',
+} %}
+{% set status_colors = {
+  'idea':     'bg-slate-100 text-slate-600',
+  'building': 'bg-blue-100 text-blue-700',
+  'live':     'bg-green-100 text-green-700',
+  'paused':   'bg-amber-100 text-amber-700',
+  'archived': 'bg-red-100 text-red-600',
+} %}
+
+{% block content %}
+
+<div class="flex items-start justify-between mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Asset Library</h1>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+
+  <!-- Asset list -->
+  <div class="col-span-2 space-y-3">
+    {% if not assets %}
+    <div class="bg-white rounded-xl p-8 text-center border border-slate-100 shadow-sm">
+      <p class="text-slate-400 text-sm">No assets yet. Add your first one →</p>
+    </div>
+    {% endif %}
+
+    {% for a in assets %}
+    {% set sbt = a.streams_by_type %}
+    <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+      <!-- Header row -->
+      <div class="px-5 py-4 flex items-center justify-between">
+        <div>
+          <span class="font-semibold text-slate-900">{{ a.name }}</span>
+          <span class="ml-2 text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+            {{ tier_labels.get(a.complexity_tier, a.complexity_tier) }}
+          </span>
+          <span class="ml-1 text-xs px-2 py-0.5 rounded-full {{ status_colors.get(a.status, 'bg-slate-100 text-slate-500') }}">
+            {{ a.status }}
+          </span>
+        </div>
+        <span class="text-sm font-semibold text-slate-700">£{{ "%.2f"|format(a.total_income) }}</span>
+      </div>
+
+      <!-- Detail -->
+      <div class="px-5 pb-4 border-t border-slate-50 grid grid-cols-2 gap-4 pt-3">
+
+        <!-- Left: info + edit -->
+        <div class="text-sm text-slate-500 space-y-1">
+          {% if a.description %}
+          <p>{{ a.description }}</p>
+          {% endif %}
+          {% if a.tech_stack %}
+          <p class="text-xs">Stack: {{ a.tech_stack }}</p>
+          {% endif %}
+          <p class="text-xs">⏱ <span id="total-hours-{{ a.id }}">{{ "%.1f"|format(a.time_invested_hours or 0) }}</span>h invested</p>
+
+          <!-- Timer -->
+          <div data-timer-asset="{{ a.id }}" class="pt-2 flex items-center gap-2">
+            <span id="timer-display-{{ a.id }}"
+                  class="font-mono text-base text-slate-700 w-20 tabular-nums">00:00:00</span>
+            <button id="timer-start-{{ a.id }}" type="button" onclick="timerToggle({{ a.id }})"
+                    class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-md hover:bg-green-200">
+              Start
+            </button>
+            <button id="timer-pause-{{ a.id }}" type="button" onclick="timerToggle({{ a.id }})"
+                    class="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-md hover:bg-amber-200 hidden">
+              Pause
+            </button>
+            <button type="button" onclick="timerSave({{ a.id }})"
+                    class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md hover:bg-indigo-200">
+              Save time
+            </button>
+          </div>
+          <!-- Hidden form for timer save -->
+          <form id="timer-form-{{ a.id }}" method="POST" action="/assets/{{ a.id }}" class="hidden">
+            <input type="hidden" name="add_hours" id="timer-hours-{{ a.id }}" value="0">
+          </form>
+
+          <form method="POST" action="/assets/{{ a.id }}" class="pt-2 flex gap-2 flex-wrap">
+            <select name="status"
+                    class="border border-slate-200 rounded-md text-xs px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-400">
+              {% for s in ['idea','building','live','paused','archived'] %}
+              <option value="{{ s }}" {% if a.status == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <input name="time_invested_hours" type="number" step="0.5" min="0"
+                   value="{{ a.time_invested_hours or 0 }}"
+                   class="border border-slate-200 rounded-md text-xs px-2 py-1 w-20 focus:outline-none focus:ring-1 focus:ring-indigo-400">
+            <button type="submit"
+                    class="bg-slate-800 text-white text-xs px-3 py-1 rounded-md hover:bg-slate-700">
+              Save
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Triple Loop -->
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Triple Loop</p>
+          {% for stype in ['product', 'gig', 'service'] %}
+          {% set s = sbt.get(stype) %}
+          <div class="flex items-center gap-2 mb-1.5">
+            {% if s %}
+            <span class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium capitalize">
+              <span>✓</span> {{ stype }}
+            </span>
+            {% if s.platform %}
+            <span class="text-xs text-slate-500">{{ s.platform }}</span>
+            {% endif %}
+            {% if s.price_min and s.price_max %}
+            <span class="text-xs text-slate-400">£{{ s.price_min|int }}–{{ s.price_max|int }}</span>
+            {% endif %}
+            {% if s.status != 'draft' %}
+            <span class="text-xs px-1.5 py-0.5 rounded-full
+                         {% if s.status == 'live' %}bg-emerald-100 text-emerald-700
+                         {% else %}bg-amber-100 text-amber-700{% endif %}">
+              {{ s.status }}
+            </span>
+            {% endif %}
+            {% else %}
+            <span class="inline-flex items-center text-xs bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full capitalize">
+              {{ stype }} — not set up
+            </span>
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <form method="POST" action="/assets/{{ a.id }}/streams" class="mt-3 space-y-1.5">
+            <select name="stream_type"
+                    class="w-full border border-slate-200 rounded-md text-xs px-2 py-1 focus:outline-none">
+              <option value="product">product</option>
+              <option value="gig">gig</option>
+              <option value="service">service</option>
+            </select>
+            <div class="flex gap-1">
+              <input name="platform" type="text" placeholder="Platform"
+                     class="flex-1 border border-slate-200 rounded-md text-xs px-2 py-1 focus:outline-none">
+              <input name="price_min" type="number" placeholder="£min" step="1" min="0"
+                     class="w-14 border border-slate-200 rounded-md text-xs px-2 py-1 focus:outline-none">
+              <input name="price_max" type="number" placeholder="£max" step="1" min="0"
+                     class="w-14 border border-slate-200 rounded-md text-xs px-2 py-1 focus:outline-none">
+            </div>
+            <button type="submit"
+                    class="w-full text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-700 transition-colors">
+              Add stream
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- New asset form -->
+  <div>
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+      <h2 class="text-sm font-semibold text-slate-700 mb-4">New asset</h2>
+      <form method="POST" action="/assets" class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-500">Name *</label>
+          <input name="name" type="text" required
+                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Description</label>
+          <textarea name="description" rows="2"
+                    class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Type</label>
+          <select name="type"
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <option value="tool">Tool</option>
+            <option value="plugin">Plugin</option>
+            <option value="template">Template</option>
+            <option value="micro-saas">Micro-SaaS</option>
+            <option value="saas">SaaS</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Complexity tier</label>
+          <select name="complexity_tier"
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <option value="quick-win">Quick Win</option>
+            <option value="medium">Medium Build</option>
+            <option value="micro-saas">Micro-SaaS</option>
+            <option value="saas">SaaS</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Tech stack</label>
+          <input name="tech_stack" type="text" placeholder="Python, Flask, Postgres…"
+                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Hours invested</label>
+          <input name="time_invested_hours" type="number" step="0.5" min="0" value="0"
+                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <button type="submit"
+                class="w-full bg-indigo-600 text-white text-sm py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+          Create asset
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getState(id) {
+  const raw = localStorage.getItem('es_timer_' + id);
+  return raw ? JSON.parse(raw) : { running: false, startedAt: null, accumulated: 0 };
+}
+function setState(id, state) {
+  localStorage.setItem('es_timer_' + id, JSON.stringify(state));
+}
+function elapsed(state) {
+  if (state.running && state.startedAt)
+    return state.accumulated + Math.floor((Date.now() - state.startedAt) / 1000);
+  return state.accumulated;
+}
+function fmt(secs) {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+}
+function render(id) {
+  const state = getState(id);
+  const el = document.getElementById('timer-display-' + id);
+  if (el) el.textContent = fmt(elapsed(state));
+  const start = document.getElementById('timer-start-' + id);
+  const pause = document.getElementById('timer-pause-' + id);
+  if (start) start.classList.toggle('hidden', state.running);
+  if (pause) pause.classList.toggle('hidden', !state.running);
+}
+function timerToggle(id) {
+  const state = getState(id);
+  if (state.running) {
+    state.accumulated = elapsed(state);
+    state.running = false;
+    state.startedAt = null;
+  } else {
+    state.running = true;
+    state.startedAt = Date.now();
+  }
+  setState(id, state);
+  render(id);
+}
+function timerSave(id) {
+  const state = getState(id);
+  if (state.running) {
+    state.accumulated = elapsed(state);
+    state.running = false;
+    state.startedAt = null;
+    setState(id, state);
+  }
+  const hours = state.accumulated / 3600;
+  if (hours < 0.005) { alert('Start the timer first!'); return; }
+  document.getElementById('timer-hours-' + id).value = hours.toFixed(4);
+  localStorage.removeItem('es_timer_' + id);
+  document.getElementById('timer-form-' + id).submit();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-timer-asset]').forEach(el => render(+el.dataset.timerAsset));
+  setInterval(() => {
+    document.querySelectorAll('[data-timer-asset]').forEach(el => render(+el.dataset.timerAsset));
+  }, 1000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Gig Generator — Earnstack{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Gig Generator</h1>
+    <p class="text-slate-400 text-sm mt-0.5">Turn an asset into ready-to-post marketplace copy.</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+
+  <!-- Controls -->
+  <div>
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+      {% if not assets %}
+      <p class="text-sm text-slate-400">Add assets first in <a href="/assets" class="text-indigo-500 hover:underline">Asset Library</a>.</p>
+      {% else %}
+      <form hx-post="/gig/generate"
+            hx-target="#gig-result"
+            hx-swap="innerHTML"
+            hx-indicator="#spinner"
+            class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-500">Asset *</label>
+          <select name="asset_id" required
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            {% for a in assets %}
+            <option value="{{ a.id }}">{{ a.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Content type</label>
+          <select name="content_type"
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <option value="all">All four</option>
+            {% for ct in content_types %}
+            <option value="{{ ct }}">{{ ct.replace('_', ' ').title() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit"
+                class="w-full bg-indigo-600 text-white text-sm py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+          Generate
+        </button>
+      </form>
+
+      <!-- Spinner -->
+      <div id="spinner" class="htmx-indicator mt-4 text-center">
+        <p class="text-sm text-slate-400 animate-pulse">Generating… this takes ~30 seconds</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="col-span-2">
+    <div id="gig-result">
+      <div class="bg-white rounded-xl p-8 text-center border border-slate-100 shadow-sm">
+        <p class="text-slate-400 text-sm">Select an asset and click Generate.</p>
+        <p class="text-xs text-slate-300 mt-1">Previously generated copy is saved automatically.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

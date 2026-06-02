@@ -1,0 +1,11 @@
+#!/bin/bash
+# Run on the Droplet to deploy a new version.
+set -e
+
+cd /opt/earnstack
+
+git pull origin main
+docker build -t earnstack:latest .
+docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+echo "Deploy complete."

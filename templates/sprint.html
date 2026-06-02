@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Sprint Board — Earnstack{% endblock %}
+
+{% set tier_labels = {
+  'quick-win':  'Quick Win',
+  'medium':     'Medium Build',
+  'micro-saas': 'Micro-SaaS',
+  'saas':       'SaaS',
+} %}
+{% set status_colors = {
+  'idea':     'bg-slate-100 text-slate-600',
+  'building': 'bg-blue-100 text-blue-700',
+  'live':     'bg-green-100 text-green-700',
+  'paused':   'bg-amber-100 text-amber-700',
+  'archived': 'bg-red-100 text-red-600',
+} %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Sprint Board</h1>
+</div>
+
+{% if not sprint %}
+<!-- No active sprint -->
+<div class="grid grid-cols-3 gap-6">
+  <div class="col-span-2">
+    <div class="bg-white rounded-xl p-8 text-center border border-slate-100 shadow-sm">
+      <p class="text-slate-500 text-sm mb-1">No active sprint.</p>
+      <p class="text-slate-400 text-xs">Start a sprint to begin tracking your build week by week.</p>
+    </div>
+
+    {% if all_sprints %}
+    <div class="mt-4">
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Past sprints</h2>
+      {% for s in all_sprints %}
+      <div class="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm mb-2 flex justify-between items-center">
+        <div>
+          <span class="text-sm font-medium text-slate-700">{{ s.name }}</span>
+          <span class="ml-2 text-xs text-slate-400">{{ s.type }}</span>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{{ s.status }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+    <h2 class="text-sm font-semibold text-slate-700 mb-4">Start a sprint</h2>
+    <form method="POST" action="/sprints" class="space-y-3">
+      <div>
+        <label class="text-xs text-slate-500">Name *</label>
+        <input name="name" type="text" required placeholder="Week 1 — Quick Wins"
+               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">Type</label>
+        <select name="type"
+                class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <option value="onboarding">Onboarding (4-week)</option>
+          <option value="release">Release cycle</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">Start date</label>
+        <input name="start_date" type="date"
+               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">End date</label>
+        <input name="end_date" type="date"
+               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">Notes</label>
+        <textarea name="notes" rows="2"
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"></textarea>
+      </div>
+      <button type="submit"
+              class="w-full bg-indigo-600 text-white text-sm py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+        Start sprint
+      </button>
+    </form>
+  </div>
+</div>
+
+{% else %}
+<!-- Active sprint -->
+<div class="grid grid-cols-3 gap-6">
+  <div class="col-span-2">
+    <!-- Sprint header -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 mb-4 overflow-hidden">
+      <div class="px-5 py-4 flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="font-semibold text-slate-900">{{ sprint.name }}</h2>
+            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Active</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            {% if sprint.start_date and sprint.end_date %}
+            {{ sprint.start_date }} → {{ sprint.end_date }}
+            {% endif %}
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <form method="POST" action="/sprints/{{ sprint.id }}/complete">
+            <button type="submit"
+                    class="text-xs text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50">
+              Complete sprint
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Edit form (collapsible) -->
+      <details class="border-t border-slate-100">
+        <summary class="px-5 py-2 text-xs text-indigo-500 cursor-pointer hover:text-indigo-600 select-none">
+          Edit sprint details
+        </summary>
+        <form method="POST" action="/sprints/{{ sprint.id }}/update"
+              class="px-5 py-4 grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="text-xs text-slate-500">Name</label>
+            <input name="name" type="text" value="{{ sprint.name }}"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500">Type</label>
+            <select name="type"
+                    class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="onboarding" {% if sprint.type == 'onboarding' %}selected{% endif %}>Onboarding</option>
+              <option value="release"    {% if sprint.type == 'release'    %}selected{% endif %}>Release cycle</option>
+            </select>
+          </div>
+          <div></div>
+          <div>
+            <label class="text-xs text-slate-500">Start date</label>
+            <input name="start_date" type="date" value="{{ sprint.start_date or '' }}"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500">End date</label>
+            <input name="end_date" type="date" value="{{ sprint.end_date or '' }}"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div class="col-span-2">
+            <label class="text-xs text-slate-500">Notes</label>
+            <textarea name="notes" rows="2"
+                      class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none">{{ sprint.notes or '' }}</textarea>
+          </div>
+          <div>
+            <button type="submit"
+                    class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+              Save changes
+            </button>
+          </div>
+        </form>
+      </details>
+    </div>
+
+    <!-- Assets by week -->
+    {% set weeks = sprint.assets | groupby('sprint_week') %}
+    {% if sprint.assets %}
+      {% for week, week_assets in weeks %}
+      <div class="mb-4">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+          {{ 'Week ' ~ week if week else 'Unscheduled' }}
+        </h3>
+        <div class="space-y-2">
+          {% for a in week_assets %}
+          <div class="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                {{ tier_labels.get(a.complexity_tier, a.complexity_tier) }}
+              </span>
+              <span class="text-sm font-medium text-slate-800">{{ a.name }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded-full {{ status_colors.get(a.status, 'bg-slate-100 text-slate-500') }}">
+                {{ a.status }}
+              </span>
+              <span class="text-xs text-slate-400">⏱ {{ a.time_invested_hours or 0 }}h</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="bg-white rounded-xl p-6 text-center border border-slate-100 shadow-sm">
+      <p class="text-slate-400 text-sm">No assets assigned yet. Add them using the form →</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Assign asset -->
+  <div class="space-y-4">
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+      <h2 class="text-sm font-semibold text-slate-700 mb-4">Assign asset to sprint</h2>
+      {% if all_assets_for_sprint %}
+      <form method="POST" action="/sprints/{{ sprint.id }}/assign" class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-500">Asset</label>
+          <select name="asset_id"
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            {% for a in all_assets_for_sprint %}
+            <option value="{{ a.id }}">
+              {{ a.name }}{% if a.sprint_id == sprint.id %} (week {{ a.sprint_week }}){% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500">Sprint week</label>
+          <input name="sprint_week" type="number" min="1" max="4" value="1"
+                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <button type="submit"
+                class="w-full bg-indigo-600 text-white text-sm py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+          Assign
+        </button>
+      </form>
+      {% else %}
+      <p class="text-xs text-slate-400">No assets yet.</p>
+      <a href="/assets" class="text-xs text-indigo-500 hover:text-indigo-600 mt-1 block">+ Create an asset first</a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Past sprints -->
+{% set past = all_sprints | selectattr('status', 'eq', 'completed') | list %}
+{% if past %}
+<div class="mt-8">
+  <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Past sprints</h2>
+  <div class="space-y-2">
+    {% for s in past %}
+    <div class="bg-white rounded-lg px-5 py-3 border border-slate-100 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-sm font-medium text-slate-700">{{ s.name }}</span>
+        <span class="ml-2 text-xs text-slate-400">{{ s.type }}</span>
+        {% if s.start_date and s.end_date %}
+        <span class="ml-2 text-xs text-slate-400">{{ s.start_date }} → {{ s.end_date }}</span>
+        {% endif %}
+      </div>
+      <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{{ s.assets | length }} assets</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+{% endblock %}

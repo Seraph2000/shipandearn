@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Earnstack{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+  <style>
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline; }
+    .htmx-request.htmx-indicator { display: inline; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden font-sans">
+
+  <!-- Sidebar -->
+  <aside class="w-56 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 h-full">
+    <div class="px-5 py-6">
+      <span class="text-xl font-bold text-white tracking-tight">Earnstack</span>
+      <p class="text-xs text-slate-500 mt-0.5">income command centre</p>
+    </div>
+
+    <!-- Goal widget -->
+    {% if goal %}
+    <div class="mx-3 mb-4 rounded-xl p-4" style="background: rgba(255,20,147,0.15); border: 1px solid rgba(255,20,147,0.4);">
+      <p class="text-xs font-semibold mb-1" style="color: #ff69b4;">{{ goal.label }}</p>
+      <p class="text-2xl font-bold text-white leading-tight">
+        £{{ "%.2f"|format(goal.earned_gbp) }}
+        <span class="text-sm font-normal" style="color: #ff69b4;">/ £{{ "%.0f"|format(goal.target_gbp) }}</span>
+      </p>
+      <div class="mt-2 h-3 bg-slate-700 rounded-full overflow-hidden">
+        <div class="h-full rounded-full transition-all" style="width: {{ [goal.pct, 100]|min }}%; background: #ff1493;"></div>
+      </div>
+      <p class="text-xs mt-1.5 font-medium" style="color: #ff69b4;">
+        £{{ "%.2f"|format(goal.gap_gbp) }} to go · {{ goal.pct }}%
+      </p>
+    </div>
+    {% else %}
+    <div class="mx-3 mb-4">
+      <a href="/#set-goal" class="text-xs text-indigo-400 hover:text-indigo-300">+ Set income goal</a>
+    </div>
+    {% endif %}
+
+    <nav class="flex-1 px-3 space-y-0.5">
+      {% set nav_items = [
+        ('/', 'Dashboard'),
+        ('/sprint', 'Sprint Board'),
+        ('/assets', 'Assets'),
+        ('/income', 'Income'),
+        ('/gig', 'Gig Generator'),
+      ] %}
+      {% for href, label in nav_items %}
+      <a href="{{ href }}"
+         class="block px-3 py-2 rounded-md text-sm font-medium transition-colors
+                {% if request.path == href %}bg-indigo-600 text-white
+                {% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %}">
+        {{ label }}
+      </a>
+      {% endfor %}
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 overflow-y-auto">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="px-8 pt-4 space-y-2">
+      {% for category, message in messages %}
+      <div class="px-4 py-2 rounded-lg text-sm
+                  {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200
+                  {% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="px-8 py-6 max-w-6xl">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

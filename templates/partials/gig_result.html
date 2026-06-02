@@ -1,0 +1,85 @@
+{% for ct, data in results.items() %}
+<div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-4">
+  <div class="px-5 py-3 border-b border-slate-100 bg-slate-50">
+    <h3 class="text-sm font-semibold text-slate-700">{{ ct.replace('_', ' ').title() }}</h3>
+  </div>
+  <div class="px-5 py-4 text-sm text-slate-700 space-y-3">
+
+    {% if ct == 'fiverr_gig' %}
+      {% if data.title %}<p class="font-semibold text-slate-900 text-base">{{ data.title }}</p>{% endif %}
+      {% if data.description %}<p class="text-slate-600 leading-relaxed">{{ data.description }}</p>{% endif %}
+      {% if data.packages %}
+      <div class="grid grid-cols-3 gap-3 mt-3">
+        {% for tier, pkg in data.packages.items() %}
+        <div class="border border-slate-100 rounded-lg p-3">
+          <p class="text-xs font-semibold text-slate-500 uppercase">{{ tier }}</p>
+          <p class="font-bold text-slate-900 mt-1">£{{ pkg.price_gbp }}</p>
+          <p class="text-xs text-slate-500 mt-0.5">{{ pkg.delivery_days }}d delivery</p>
+          <p class="text-xs text-slate-600 mt-1">{{ pkg.description }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if data.tags %}
+      <div class="flex flex-wrap gap-1 mt-2">
+        {% for tag in data.tags %}
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    {% elif ct == 'upwork_listing' %}
+      {% if data.title %}<p class="font-semibold text-slate-900 text-base">{{ data.title }}</p>{% endif %}
+      {% if data.description %}<p class="text-slate-600 leading-relaxed">{{ data.description }}</p>{% endif %}
+      <div class="flex gap-4 text-xs text-slate-500 mt-2">
+        {% if data.budget_gbp %}<span>Budget: £{{ data.budget_gbp }}</span>{% endif %}
+        {% if data.scope %}<span>Scope: {{ data.scope }}</span>{% endif %}
+        {% if data.duration %}<span>Duration: {{ data.duration }}</span>{% endif %}
+      </div>
+      {% if data.deliverables %}
+      <ul class="list-disc list-inside text-slate-600 text-xs space-y-0.5">
+        {% for d in data.deliverables %}<li>{{ d }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      {% if data.skills %}
+      <div class="flex flex-wrap gap-1">
+        {% for s in data.skills %}
+        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{{ s }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    {% elif ct == 'product_description' %}
+      {% if data.headline %}<p class="font-bold text-slate-900 text-lg">{{ data.headline }}</p>{% endif %}
+      {% if data.tagline %}<p class="text-indigo-600 text-sm italic">{{ data.tagline }}</p>{% endif %}
+      {% if data.description %}<p class="text-slate-600 leading-relaxed">{{ data.description }}</p>{% endif %}
+      {% if data.bullet_points %}
+      <ul class="space-y-1">
+        {% for b in data.bullet_points %}
+        <li class="flex items-start gap-2 text-sm text-slate-700">
+          <span class="text-green-500 mt-0.5">✓</span> {{ b }}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if data.price_gbp %}
+      <p class="text-lg font-bold text-slate-900">£{{ data.price_gbp }}</p>
+      {% endif %}
+
+    {% elif ct == 'readme' %}
+      {% if data.markdown %}
+      <pre class="text-xs text-slate-600 whitespace-pre-wrap font-mono bg-slate-50 rounded-lg p-4 overflow-auto max-h-96">{{ data.markdown }}</pre>
+      {% endif %}
+
+    {% else %}
+      <pre class="text-xs text-slate-600 whitespace-pre-wrap">{{ data | tojson(indent=2) }}</pre>
+    {% endif %}
+
+    <!-- Raw copy button (copy the JSON) -->
+    <details class="mt-2">
+      <summary class="text-xs text-slate-400 cursor-pointer hover:text-slate-600">Raw JSON</summary>
+      <pre class="mt-2 text-xs text-slate-500 bg-slate-50 rounded p-3 overflow-auto">{{ data | tojson(indent=2) }}</pre>
+    </details>
+  </div>
+</div>
+{% endfor %}

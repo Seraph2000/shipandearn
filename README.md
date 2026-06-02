@@ -1,66 +1,105 @@
 # Earnstack
 
-**Your income stack, optimised.**
+**Turn what you build into stacked income — products, gigs, and services from every asset.**
 
-Earnstack polls micro-earning platforms, scores every available task by £/hour, and surfaces the best opportunity in a single dashboard. Stop tab-switching. Open Earnstack, start the top task.
-
----
-
-## What it does
-
-- Polls Prolific, Clickworker, and Freecash automatically
-- Scores tasks by hourly rate, platform reliability, and historical speed
-- Ranks everything in one dashboard — best task always at the top
-- Logs completions and tracks daily/monthly earnings
-- Uses Claude AI to summarise task instructions so you can decide in seconds
+Earnstack is an income command centre for creative engineers. You add your builds — tools, plugins, templates, SaaS products — and it helps you monetise each one three ways, tracks what you're earning, and generates your marketplace copy for you.
 
 ---
 
-## Platforms supported
+## The Triple Loop
 
-| Platform | Type | Status |
+Every asset you build has three income streams waiting to be activated:
+
+| Stream | What it is | Example platforms |
 |---|---|---|
-| Prolific | Academic surveys | v0.1.0 |
-| Clickworker | Micro-tasks | v0.1.0 |
-| Freecash | Offers & surveys | v0.1.0 |
-| Swagbucks, PrizeRebel, InboxDollars | Offer walls | v0.2.0 |
-| UserTesting | Usability tests | v0.2.0 |
-| Outlier.ai, DataAnnotation, Appen | AI training work | v0.2.0 |
-| Respondent.io | Research interviews | v0.2.0 |
+| **Product** | Sell the thing itself | Gumroad, Ko-fi, Itch.io |
+| **Gig** | Sell setup, customisation, integration | Fiverr, Upwork |
+| **Service** | Sell bespoke builds using the same skills | Upwork, direct clients |
+
+The Triple Loop compounds: your product validates your gig credibility, your gig work funds your next build, your service work pays you while the products scale.
+
+Each stream has a status:
+
+| Status | Meaning |
+|---|---|
+| **draft** | Added to Earnstack, not yet published on the platform |
+| **live** | Published and active — earning or available to earn |
+| **paused** | Was live, temporarily taken down |
+
+---
+
+## What Earnstack does
+
+- **Asset Library** — track every tool, plugin, template, micro-SaaS, and SaaS you build with status, tech stack, and time invested
+- **Triple Loop tracker** — log the product listing, gig, and service offering for each asset with platform, pricing, and status
+- **Sprint Board** — organise builds into 4-week onboarding sprints or release cycles, assign assets by week
+- **Gig Generator** — AI-powered copy generation: Fiverr gig, Upwork listing, product description, and GitHub README per asset (powered by Claude)
+- **Income log** — track every payment by asset, stream, and platform
+- **Goal tracking** — set a monthly income target and watch it fill up
+
+---
+
+## Asset types & complexity tiers
+
+**Types:** tool · plugin · template · micro-SaaS · SaaS
+
+**Complexity tiers:**
+
+| Tier | Build time | Income target |
+|---|---|---|
+| Quick Win | Hours to days | £5–£30 product, £15–£50 gig |
+| Medium Build | Days to weeks | £30–£150 product, £50–£200 gig |
+| Micro-SaaS | Weeks | £150–£500/mo, £200–£500 gigs |
+| SaaS | Months | £500+/mo, £500+ services |
+
+---
+
+## Tech stack
+
+- **Backend:** Python, Flask, SQLAlchemy
+- **Database:** PostgreSQL
+- **Frontend:** Jinja2, HTMX, Tailwind CSS
+- **AI:** Claude (Anthropic) via the official SDK
 
 ---
 
 ## Setup
 
-**Requirements:** Python 3.10+
+**Requirements:** Python 3.10+, PostgreSQL
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/earnstack.git
+git clone https://github.com/Seraph2000/earnstack.git
 cd earnstack
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit `.env` and add your platform credentials. See `.env.example` for instructions on where to find each value.
+Edit `.env` — you need three values:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+DATABASE_URL=postgresql://postgres:yourpassword@localhost/earnstack
+SECRET_KEY=any-random-string
+```
+
+Create the database:
+
+```bash
+sudo -u postgres createdb earnstack
+```
 
 ---
 
 ## Running
 
 ```bash
-# One-shot poll — fetch tasks now and exit
-python main.py poll
-
-# Background scheduler — polls on a continuous loop
-python main.py run
-
-# Dashboard — open in browser at localhost:8501
-streamlit run dashboard.py
+source venv/bin/activate
+python app.py
 ```
 
-Run `main.py run` and `dashboard.py` in separate terminals for the full experience.
+Open `http://localhost:5000`.
 
 ---
 
@@ -72,4 +111,4 @@ See [roadmap.md](roadmap.md).
 
 ## Licence
 
-Proprietary. See [LICENSE](LICENSE).
+Proprietary — All Rights Reserved. © Seraphina Anderson 2026. See [LICENSE](LICENSE).
