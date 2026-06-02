@@ -2,31 +2,135 @@
 
 ## Deployment
 
-### First-time Droplet setup
+### 1. Create the Droplet (DigitalOcean console)
+
+1. Log in to [cloud.digitalocean.com](https://cloud.digitalocean.com)
+2. **Create → Droplet**
+   - Image: **Ubuntu 22.04 LTS**
+   - Size: **Basic — $6/mo** (1 vCPU, 1GB RAM, 25GB SSD)
+   - Region: closest to your users (LON1 for UK)
+   - Authentication: **SSH key** (add your public key — `~/.ssh/id_rsa.pub`)
+   - Hostname: `earnstack`
+3. Note the Droplet's public IP address
+
+---
+
+### 2. Point your domain (optional but recommended)
+
+In your DNS provider, add an **A record**:
+```
+@   →   <droplet-ip>
+www →   <droplet-ip>
+```
+
+---
+
+### 3. Provision the server (run once)
+
+SSH in and run the provision script:
 ```bash
-bash deploy/provision.sh          # installs Docker on the server
-git clone <repo> /opt/earnstack
-cp .env.example /opt/earnstack/.env   # fill in all values
+ssh root@<droplet-ip>
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Seraph2000/earnstack/main/deploy/provision.sh)"
+```
 
-# Initialise migrations (once only — commit the migrations/ folder afterwards)
-flask db init
-flask db migrate -m "initial"
-flask db upgrade
+Or manually:
+```bash
+ssh root@<droplet-ip>
+apt-get update && apt-get upgrade -y
+curl -fsSL https://get.docker.com | sh
+apt-get install -y docker-compose-plugin
+mkdir -p /opt/earnstack
+```
 
+---
+
+### 4. Clone the repo and configure environment
+
+```bash
+cd /opt/earnstack
+git clone https://github.com/Seraph2000/earnstack.git .
+cp .env.example .env
+nano .env   # fill in all values — see below
+```
+
+**Required `.env` values for production:**
+```env
+SECRET_KEY=<long-random-string>
+DATABASE_URL=postgresql://earnstack:<password>@db:5432/earnstack
+POSTGRES_USER=earnstack
+POSTGRES_PASSWORD=<same-password>
+ANTHROPIC_API_KEY=<your-key>
+```
+
+Generate a secret key with:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+---
+
+### 5. First deploy
+
+```bash
+cd /opt/earnstack
 bash deploy/deploy.sh
 ```
 
-### Subsequent deploys
+This builds the image, starts all three containers (web, db, nginx), and runs `flask db upgrade` automatically inside the web container.
+
+Verify everything is running:
 ```bash
-bash deploy/deploy.sh   # pulls main, rebuilds image, restarts containers
+docker compose -f docker-compose.prod.yml ps
 ```
 
-### Schema changes
+Visit `http://<droplet-ip>` — you should see the Earnstack dashboard.
+
+---
+
+### 6. Subsequent deploys
+
+From your **local machine**, push to main — then on the Droplet:
 ```bash
-flask db migrate -m "describe change"   # generates migration file
-flask db upgrade                        # applies to local DB
-git add migrations/ && git commit       # commit before deploying
-bash deploy/deploy.sh                   # entrypoint runs flask db upgrade automatically
+ssh root@<droplet-ip> "cd /opt/earnstack && bash deploy/deploy.sh"
+```
+
+Or SSH in and run it directly:
+```bash
+cd /opt/earnstack && bash deploy/deploy.sh
+```
+
+---
+
+### 7. Schema changes
+
+```bash
+# On your local machine — generate and commit the migration first
+flask db migrate -m "describe change"
+flask db upgrade                          # apply locally to verify
+git add migrations/ && git commit
+git push origin main
+
+# Then deploy
+ssh root@<droplet-ip> "cd /opt/earnstack && bash deploy/deploy.sh"
+# entrypoint.sh runs flask db upgrade automatically on container start
+```
+
+---
+
+### 8. Useful ops commands
+
+```bash
+# View live logs
+docker compose -f docker-compose.prod.yml logs -f web
+
+# Restart web container only
+docker compose -f docker-compose.prod.yml restart web
+
+# Open a shell inside the running container
+docker compose -f docker-compose.prod.yml exec web sh
+
+# Connect to the database
+docker compose -f docker-compose.prod.yml exec db psql -U earnstack earnstack
 ```
 
 ---

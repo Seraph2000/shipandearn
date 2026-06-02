@@ -41,96 +41,58 @@ Every build generates three income streams — the Triple Loop:
 
 ---
 
-### v0.2.0 — The Pivot (current milestone)
+### v0.2.0 — The Pivot ✓ shipped
 
-Strip out the micro-earnings layer. Redesign around the creative engineering income model.
+Ground-up redesign around the creative engineering income model.
 
-**Core data model**
-- [ ] Asset entity — name, type (tool / plugin / template / micro-SaaS / SaaS), complexity tier, status, time invested
-- [ ] Triple Loop per asset — product listing, gig listing, service offering (links, status, income)
-- [ ] Income log — earnings per asset per stream
-
-**Sprint Board**
-- [ ] 4-week onboarding sprint mode
-- [ ] Complexity tiers: Quick Win / Medium Build / Micro-SaaS / Full SaaS
-- [ ] Daily action queue — what to build or publish today
-
-**Gig Generator** ← core feature
-- [ ] Input: asset name, description, tech stack
-- [ ] Output: Fiverr gig title + description + pricing tiers
-- [ ] Output: Upwork project listing
-- [ ] Output: Gumroad / product page description
-- [ ] Output: README draft
-
-**Dashboard**
-- [ ] Asset library view
-- [ ] Income per asset and per stream
-- [ ] Sprint progress
+- [x] Asset library (type, complexity tier, status, time invested)
+- [x] Triple Loop income tracking — product, gig, service streams per asset
+- [x] Sprint Board — 4-week onboarding sprints with complexity tiers
+- [x] Gig Generator — Claude-powered copy for Fiverr, Upwork, product pages, README
+- [x] Goal tracking + progress dashboard
+- [x] Docker + DigitalOcean Droplet deployment stack
+- [x] Flask-Migrate for schema migrations
 
 ---
 
-### v0.3.0 — Triple Loop Tracker
-
-Once assets are live, track all three streams properly.
-
-- [ ] Marketplace status per asset (live / pending / draft) for each platform
-- [ ] Income logging per stream (product vs gig vs service)
-- [ ] Gig performance — views, orders, conversion (manual input or API where available)
-- [ ] Service pipeline — enquiries, proposals sent, won/lost
-
----
-
-### v0.4.0 — Pipeline + Analytics
-
-Graduate from sprint mode into a continuous pipeline.
-
-- [ ] Continuous pipeline mode (replaces sprint once you have assets running)
-- [ ] Asset performance ranking — which builds earn most
-- [ ] Marketplace performance — which platforms convert best
-- [ ] AI-suggested next build — gaps in your stack, underserved tiers
-- [ ] Monthly income summary (auto-generated)
-
----
-
-### v0.5.0 — Portfolio
-
-- [ ] Auto-generated portfolio page from asset library
-- [ ] Shareable link — doubles as a hiring portfolio
-- [ ] Case study generator per asset (AI-drafted, editable)
-
----
-
-### v1.0.0 — Earnstack as a Product
+### v1.0.0 — Commercial Launch (next)
 
 Open Earnstack to other creative engineers. Position: *"The income cockpit for indie developers."*
 
-**Pricing strategy**
-Start at £4.99/month — utility pricing, low friction, validates before building premium tiers.
+Scope is intentionally lean — get a paying user live, then let real usage drive v1.1+.
+
+**Pricing**
 
 | Tier | Price | Features |
 |---|---|---|
 | **Starter** | £4.99/mo | Dashboard, sprint board, income tracker, gig templates, manual entry |
-| **Pro** | £12.99/mo | API integrations (Upwork, Fiverr, Stripe), AI gig generator, weekly income reports |
+| **Pro** | £12.99/mo | AI gig generator, API integrations, weekly income reports |
 | **Studio** | £29.99/mo | White-labelling, team dashboards, custom automations, priority support |
 
-**Payments & access control**
-- [ ] Stripe or Paddle (both handle EU VAT automatically)
-- [ ] JWT-based auth — lock premium routes (Sprint Board, Gig Generator) behind tier check
-- [ ] Feature flags (`is_paid_user`) to toggle advanced features
-- [ ] 14-day free trial before requiring payment
-
-**Infrastructure**
-- [ ] Multi-user auth (email + password or OAuth via Clerk/Supabase Auth)
+**Must-haves (launch blockers)**
+- [ ] Multi-user auth — email + password or OAuth (Clerk or Supabase Auth)
 - [ ] Per-user data isolation
+- [ ] Stripe subscription + 14-day free trial (handles EU VAT automatically)
+- [ ] Feature gating — lock Gig Generator + Sprint Board behind paid tier
 - [ ] Public landing page + pricing page
 
-**Distribution**
-- [ ] Fiverr/Upwork bundle: *"I'll set up your developer income dashboard (Earnstack-powered)"*
-- [ ] GitHub Marketplace: open-source base with paid extensions
-- [ ] Product Hunt / Indie Hackers: launch hosted version with free tier
-- [ ] Self-hosted licence option: pay once, deploy your own instance
+**Distribution (at launch)**
+- [ ] Product Hunt / Indie Hackers
+- [ ] Fiverr/Upwork bundle: *"I'll set up your developer income dashboard"*
+- [ ] GitHub: open-source base with paid hosted version
 
-**Product**
-- [ ] Onboarding sprint flow baked into signup
-- [ ] Self-serve gig copy wizard (users generate their own output)
-- [ ] Conversion dashboard — shows how much each asset has earned
+---
+
+### Post-v1.0 Backlog
+
+Features validated by real users before being scheduled into a release.
+
+- Triple Loop tracker — marketplace status, gig performance, service pipeline
+- Continuous pipeline mode — replaces sprint once assets are running
+- Asset performance analytics — which builds and platforms earn most
+- AI-suggested next build — gaps in your stack, underserved tiers
+- Auto-generated portfolio page + shareable link
+- Case study generator per asset (AI-drafted, editable)
+- Self-serve gig copy wizard
+- API access + integrations (Upwork, Fiverr, Stripe income sync)
+- Self-hosted licence option
