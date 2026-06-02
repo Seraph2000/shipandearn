@@ -136,10 +136,10 @@ Visit `http://earnstack.dev` — you should see the Earnstack dashboard.
 
 ```bash
 ssh earnstack
-cd /opt/earnstack && sudo bash deploy/deploy.sh
+sudo bash deploy/deploy.sh
 ```
 
-`deploy.sh` pulls the latest code, rebuilds the image, and restarts the containers.
+`deploy.sh` pulls the latest code, rebuilds the image, and restarts the containers in one command.
 
 ---
 
