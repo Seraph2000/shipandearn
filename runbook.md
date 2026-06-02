@@ -115,32 +115,31 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 ### 6. First deploy
 
 ```bash
+ssh earnstack
 cd /opt/earnstack
-bash deploy/deploy.sh
+sudo docker build -t earnstack:latest .
+sudo docker compose -f docker-compose.prod.yml up -d
 ```
 
-This builds the image, starts all three containers (web, db, nginx), and runs `flask db upgrade` automatically inside the web container.
+This starts all three containers (web, db, nginx) and runs `flask db upgrade` automatically inside the web container.
 
 Verify everything is running:
 ```bash
-docker compose -f docker-compose.prod.yml ps
+sudo docker compose -f docker-compose.prod.yml ps
 ```
 
-Visit `http://<droplet-ip>` — you should see the Earnstack dashboard.
+Visit `http://earnstack.dev` — you should see the Earnstack dashboard.
 
 ---
 
 ### 7. Subsequent deploys
 
-From your **local machine**, push to main — then on the Droplet:
 ```bash
-ssh earnstack "cd /opt/earnstack && sudo bash deploy/deploy.sh"
+ssh earnstack
+cd /opt/earnstack && sudo bash deploy/deploy.sh
 ```
 
-Or SSH in and run it directly:
-```bash
-cd /opt/earnstack && bash deploy/deploy.sh
-```
+`deploy.sh` pulls the latest code, rebuilds the image, and restarts the containers.
 
 ---
 
