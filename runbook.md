@@ -48,11 +48,50 @@ mkdir -p /opt/earnstack
 
 ---
 
-### 4. Clone the repo and configure environment
+### 4. Set up a GitHub deploy key
+
+The repo is private — the server needs its own SSH key with read access to clone and pull.
+
+**On the Droplet:**
+```bash
+ssh-keygen -t ed25519 -C "earnstack-droplet-deploy" -f ~/.ssh/github_deploy
+# Press Enter through all prompts (no passphrase)
+
+cat ~/.ssh/github_deploy.pub   # copy this output
+```
+
+**On GitHub:**
+1. Go to **github.com/Seraph2000/earnstack → Settings → Deploy keys**
+2. Click **Add deploy key**
+   - Title: `earnstack-droplet`
+   - Key: paste the output of `cat ~/.ssh/github_deploy.pub`
+   - Allow write access: **No** (read-only is enough)
+3. Click **Add key**
+
+**Back on the Droplet — configure SSH to use the deploy key for GitHub:**
+```bash
+nano ~/.ssh/config
+```
+Add:
+```
+Host github.com
+    IdentityFile ~/.ssh/github_deploy
+    IdentitiesOnly yes
+```
+
+Test it:
+```bash
+ssh -T git@github.com
+# Should respond: Hi Seraph2000/earnstack! You've successfully authenticated...
+```
+
+---
+
+### 5. Clone the repo and configure environment  
 
 ```bash
 cd /opt/earnstack
-git clone https://github.com/Seraph2000/earnstack.git .
+git clone git@github.com:Seraph2000/earnstack.git .
 cp .env.example .env
 nano .env   # fill in all values — see below
 ```
@@ -73,7 +112,7 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 
 ---
 
-### 5. First deploy
+### 6. First deploy
 
 ```bash
 cd /opt/earnstack
@@ -91,11 +130,11 @@ Visit `http://<droplet-ip>` — you should see the Earnstack dashboard.
 
 ---
 
-### 6. Subsequent deploys
+### 7. Subsequent deploys
 
 From your **local machine**, push to main — then on the Droplet:
 ```bash
-ssh root@<droplet-ip> "cd /opt/earnstack && bash deploy/deploy.sh"
+ssh earnstack "cd /opt/earnstack && sudo bash deploy/deploy.sh"
 ```
 
 Or SSH in and run it directly:
@@ -105,7 +144,7 @@ cd /opt/earnstack && bash deploy/deploy.sh
 
 ---
 
-### 7. Schema changes
+### 8. Schema changes
 
 ```bash
 # On your local machine — generate and commit the migration first
@@ -115,13 +154,13 @@ git add migrations/ && git commit
 git push origin main
 
 # Then deploy
-ssh root@<droplet-ip> "cd /opt/earnstack && bash deploy/deploy.sh"
+ssh earnstack "cd /opt/earnstack && sudo bash deploy/deploy.sh"
 # entrypoint.sh runs flask db upgrade automatically on container start
 ```
 
 ---
 
-### 8. Useful ops commands
+### 9. Useful ops commands
 
 ```bash
 # View live logs
