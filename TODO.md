@@ -13,6 +13,7 @@
 - [ ] Rebrand throughout codebase — replace all "Earnstack" references with "Ship & Earn"
 - [ ] Update templates, landing page, sidebar branding
 - [ ] Point shipandearn.com + shipandearn.dev at the Droplet
-- [ ] Rename GitHub repo from `earnstack` to `ship-and-earn`
+- [x] Rename GitHub repo → github.com/Seraph2000/shipandearn ✓
+- [ ] Update git remote on the Droplet: `git remote set-url origin https://github.com/Seraph2000/shipandearn.git`
 - [ ] Stripe integration — subscription checkout + webhook
 - [ ] Deploy reset button fix to prod (`sudo bash deploy/deploy.sh`)
