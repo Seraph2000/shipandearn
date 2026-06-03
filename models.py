@@ -1,12 +1,34 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 db = SQLAlchemy()
 
 
+class User(db.Model, UserMixin):
+    __tablename__ = "users"
+    id            = db.Column(db.Integer, primary_key=True)
+    email         = db.Column(db.String(200), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    tier          = db.Column(db.String(20), nullable=False, default="starter")
+    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sprints = db.relationship("Sprint", backref="user", lazy=True)
+    assets  = db.relationship("Asset",  backref="user", lazy=True)
+    goals   = db.relationship("Goal",   backref="user", lazy=True)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
 class Sprint(db.Model):
     __tablename__ = "sprints"
     id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     name       = db.Column(db.String(200), nullable=False)
     type       = db.Column(db.String(50),  nullable=False, default="onboarding")
     status     = db.Column(db.String(50),  nullable=False, default="active")
@@ -20,6 +42,7 @@ class Sprint(db.Model):
 class Asset(db.Model):
     __tablename__ = "assets"
     id                  = db.Column(db.Integer, primary_key=True)
+    user_id             = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     name                = db.Column(db.String(200), nullable=False)
     description         = db.Column(db.Text)
     type                = db.Column(db.String(50),  nullable=False, default="tool")
@@ -89,6 +112,7 @@ class AIContent(db.Model):
 class Goal(db.Model):
     __tablename__ = "goals"
     id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     label      = db.Column(db.String(100), nullable=False)
     period     = db.Column(db.String(20),  nullable=False, default="monthly")
     target_gbp = db.Column(db.Float, nullable=False)

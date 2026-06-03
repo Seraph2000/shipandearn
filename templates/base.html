@@ -44,7 +44,7 @@
 
     <nav class="flex-1 px-3 space-y-0.5">
       {% set nav_items = [
-        ('/', 'Dashboard'),
+        ('/dashboard', 'Dashboard'),
         ('/sprint', 'Sprint Board'),
         ('/assets', 'Assets'),
         ('/income', 'Income'),
@@ -59,6 +59,15 @@
       </a>
       {% endfor %}
     </nav>
+
+    <!-- User + logout -->
+    <div class="px-4 py-4 border-t border-slate-800">
+      <p class="text-xs text-slate-500 truncate mb-2">{{ current_user.email }}</p>
+      <a href="/logout"
+         class="block text-xs text-slate-400 hover:text-white transition-colors">
+        Sign out
+      </a>
+    </div>
   </aside>
 
   <!-- Main -->
