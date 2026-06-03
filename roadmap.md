@@ -65,15 +65,16 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 | Tier | Price | Features |
 |---|---|---|
-| **Starter** | £4.99/mo | Dashboard, sprint board, income tracker, gig templates, manual entry |
-| **Pro** | £12.99/mo | AI gig generator, API integrations, weekly income reports |
-| **Studio** | £29.99/mo | White-labelling, team dashboards, custom automations, priority support |
+| **Lifetime Basic** | £1.99 one-time | Dashboard + income tracker forever — sold on Gumroad, redeemable at earnstack.dev |
+| **Starter** | £4.99/mo | + Sprint Board + asset library |
+| **Pro** | £12.99/mo | + AI Gig Generator + reports — *Coming Soon* |
+| **Studio** | £29.99/mo | + white-labelling + teams — *Coming Soon* |
 
 **Must-haves (launch blockers)**
-- [ ] Multi-user auth — email + password or OAuth (Clerk or Supabase Auth)
+- [ ] Multi-user auth — email + password via Flask-Login + Werkzeug (no third-party auth services)
 - [ ] Per-user data isolation
 - [ ] Stripe subscription + 14-day free trial (handles EU VAT automatically)
-- [ ] Feature gating — lock Gig Generator + Sprint Board behind paid tier
+- [ ] Feature gating — Sprint Board + Gig Generator behind Starter tier; dashboard + income tracker free on Lifetime Basic
 - [ ] Public landing page + pricing page
 
 **Distribution (at launch)**
