@@ -83,6 +83,31 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 ---
 
+### Open Source Strategy (post-v1.0)
+
+Don't open-source before v1.0.0. Get the hosted SaaS live and taking payments first.
+
+**Sequence:**
+1. v1.0.0 ships → first paying users
+2. Open-source the core under **AGPL v3** — protects against commercial forks (anyone hosting a modified version must also open-source their changes)
+3. Product Hunt launch: *"self-host free / hosted from £4.99/mo"*
+
+**What to open:**
+- Core app (dashboard, sprint board, income tracker, asset library)
+- Data models + migrations
+- Self-host docs + runbook
+- Docker setup
+
+**What stays closed (SaaS-only):**
+- AI Gig Generator prompts
+- Multi-user / team features
+- Stripe integration
+- Analytics + premium dashboard
+
+**Licence change:** update `LICENSE` from proprietary → AGPL v3 at the point of open-sourcing. Until then the repo stays private and proprietary.
+
+---
+
 ### Post-v1.0 Backlog
 
 Features validated by real users before being scheduled into a release.
