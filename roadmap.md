@@ -1,4 +1,11 @@
-# Earnstack — Roadmap
+# Earnstack → Ship & Earn — Roadmap
+
+> ⚠️ **Rebrand required before public launch.** "Earnstack" is a registered UK company (EARNSTACK LIMITED, Companies House) and earnstack.com is an active competing product. New name: **Ship & Earn**.
+>
+> **Domains purchased (Cloudflare):** `shipandearn.com` (primary) + `shipandearn.dev` (alias)
+> `earnstack.dev` — consider selling directly to EARNSTACK LIMITED.
+>
+> **TODO before v1.0.0 launch:** rename throughout codebase, update all templates, redeploy to shipandearn.com.
 
 **Goal:** help creative engineers turn what they build into stacked income — products, gigs, and services from every asset.
 
