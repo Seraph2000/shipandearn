@@ -96,3 +96,10 @@ Features validated by real users before being scheduled into a release.
 - Self-serve gig copy wizard
 - API access + integrations (Upwork, Fiverr, Stripe income sync)
 - Self-hosted licence option
+
+**Gig Generator — evolution**
+Currently fun and novel — good enough for v1.0. Needs proper structure in a future release:
+- Content-type specific intake forms — different questions per output type (Fiverr vs README vs product page need different inputs)
+- Richer asset model — target audience, key features, pricing, screenshots, repo URL
+- Separate gig assets from product assets — a SaaS shouldn't generate a Fiverr gig; a tool/plugin should
+- Guardrails + quality scoring (integrate with guardrails + tech rubric as noted in earlier discussions)
