@@ -229,12 +229,19 @@ Visit `https://shipandearn.com`.
 ### 7. Subsequent deploys
 
 ```bash
-ssh root@<DROPLET_IP>
+ssh shipandearn
 cd /opt/shipandearn
 sudo bash deploy/deploy.sh
 ```
 
 `deploy.sh` pulls latest code, rebuilds the image, and restarts containers in one command. Schema migrations run automatically on startup via `entrypoint.sh`.
+
+**Downtime during deploys:** the current setup has ~5-10 seconds of downtime per deploy. This is acceptable at current scale. The deploy script minimises this by building the new image first (while the old app is still running), then doing a fast container swap.
+
+**⚠️ Never delete the database volume.** The `shipandearn_postgres_data` Docker volume holds all production data. It survives `docker compose down`, image rebuilds, and deploys. The only command that destroys it is `docker compose down -v` — never run that on the Droplet.
+
+**Zero-downtime deploys (future, when traffic justifies it):**
+Use a blue-green approach — run two web containers (blue + green) on different ports. Nginx proxies to the active one. Deploy to the idle container, verify it's healthy, then update the nginx upstream to point to it. The old container stays live until the switch completes. Requires updating `nginx.conf` and `docker-compose.prod.yml` to support two web instances.
 
 ---
 
@@ -266,18 +273,24 @@ sudo docker compose -f docker-compose.prod.yml exec db psql -U shipandearn shipa
 
 ## Pushing to GitHub from WSL (local machine)
 
-GitHub no longer accepts passwords — use the `gh` CLI to authenticate instead. Run this once:
+**The remote is set to SSH** — this is the permanent solution and never requires re-authentication:
 
 ```bash
-gh auth login
+git remote set-url origin git@github.com:Seraph2000/shipandearn.git
 ```
 
-Select:
-- **GitHub.com**
-- **HTTPS**
-- **Login with a web browser**
+Verify it's set correctly:
+```bash
+git remote get-url origin
+# Should show: git@github.com:Seraph2000/shipandearn.git
+```
 
-Follow the browser prompt to authorise. Once done, `git push origin main` works without a password prompt.
+If the remote shows `https://github.com/...` instead, run the `set-url` command above — that's why pushes fail with "No such device or address".
+
+**To push:**
+```bash
+git push origin main
+```
 
 **To tag and push a release:**
 ```bash
@@ -286,10 +299,12 @@ git push origin main
 git push origin v1.0.0
 ```
 
-**If `gh auth login` fails** (no browser available in WSL), use a Personal Access Token instead:
-1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Generate a token with `repo` scope
-3. Run: `git remote set-url origin https://<YOUR_TOKEN>@github.com/Seraph2000/shipandearn.git`
+**If push fails with "Permission denied (publickey)"**, your SSH key isn't added to the agent:
+```bash
+ssh-add ~/.ssh/id_ed25519   # or whichever key is registered with GitHub
+```
+
+**Avoid HTTPS remotes** — `gh auth login` sessions expire and break pushes silently. SSH is permanent.
 
 ---
 
