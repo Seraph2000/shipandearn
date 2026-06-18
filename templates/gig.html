@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Gig Generator — Earnstack{% endblock %}
+{% block title %}Gig Generator — Ship & Earn{% endblock %}
 {% block content %}
 
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h1 class="text-2xl font-bold text-slate-900">Gig Generator</h1>
+    <h1 class="text-2xl font-bold text-white tracking-tight">Gig Generator</h1>
     <p class="text-slate-400 text-sm mt-0.5">Turn an asset into ready-to-post marketplace copy.</p>
   </div>
 </div>
@@ -25,7 +25,7 @@
         <div>
           <label class="text-xs text-slate-500">Asset *</label>
           <select name="asset_id" required
-                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
             {% for a in assets %}
             <option value="{{ a.id }}">{{ a.name }}</option>
             {% endfor %}
@@ -34,8 +34,7 @@
         <div>
           <label class="text-xs text-slate-500">Content type</label>
           <select name="content_type"
-                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            <option value="all">All four</option>
+                  class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
             {% for ct in content_types %}
             <option value="{{ ct }}">{{ ct.replace('_', ' ').title() }}</option>
             {% endfor %}
@@ -49,7 +48,7 @@
 
       <!-- Spinner -->
       <div id="spinner" class="htmx-indicator mt-4 text-center">
-        <p class="text-sm text-slate-400 animate-pulse">Generating… this takes ~30 seconds</p>
+        <p class="text-sm text-slate-400 animate-pulse">Generating… ~30 seconds (all four run in parallel)</p>
       </div>
       {% endif %}
     </div>

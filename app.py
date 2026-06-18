@@ -1,6 +1,8 @@
 import json
+import re
 from datetime import date
 from functools import wraps
+import stripe
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
@@ -11,7 +13,12 @@ from meo import ai
 
 login_manager = LoginManager()
 
-TIER_RANK = {"lifetime": 1, "starter": 2, "pro": 3, "studio": 4}
+TIER_RANK = {"demo": 0, "lifetime": 1, "pro": 2, "studio": 3}
+
+_STRIPE_PRICES = {
+    "lifetime": lambda: config.STRIPE_PRICE_LIFETIME,
+    "pro":      lambda: config.STRIPE_PRICE_PRO,
+}
 
 
 def tier_required(min_tier):
@@ -19,8 +26,7 @@ def tier_required(min_tier):
         @wraps(f)
         def decorated(*args, **kwargs):
             if TIER_RANK.get(current_user.tier, 0) < TIER_RANK.get(min_tier, 0):
-                flash("Upgrade your plan to access this feature.", "error")
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("upgrade_page", feature=f.__name__, required=min_tier))
             return f(*args, **kwargs)
         return decorated
     return decorator
@@ -35,6 +41,7 @@ def create_app():
     Migrate(app, db)
     login_manager.init_app(app)
     login_manager.login_view = "login"
+    stripe.api_key = config.STRIPE_SECRET_KEY
     return app
 
 
@@ -134,7 +141,8 @@ def signup():
         db.session.add(user)
         db.session.commit()
         login_user(user)
-        return redirect(url_for("dashboard"))
+        next_url = request.form.get("next") or request.args.get("next")
+        return redirect(next_url or url_for("dashboard"))
     return render_template("auth/signup.html")
 
 
@@ -179,6 +187,7 @@ def dashboard():
 
 @app.route("/goal", methods=["POST"])
 @login_required
+@tier_required("lifetime")
 def set_goal():
     Goal.query.filter_by(active=True, user_id=current_user.id).update({"active": False})
     db.session.add(Goal(
@@ -196,7 +205,7 @@ def set_goal():
 
 @app.route("/assets")
 @login_required
-@tier_required("starter")
+
 def assets():
     all_assets = Asset.query.filter_by(user_id=current_user.id).order_by(Asset.created_at.desc()).all()
     return render_template("assets.html", assets=all_assets)
@@ -204,7 +213,7 @@ def assets():
 
 @app.route("/assets", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def create_asset():
     db.session.add(Asset(
         user_id=current_user.id,
@@ -222,11 +231,21 @@ def create_asset():
 
 @app.route("/assets/<int:asset_id>", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def update_asset(asset_id):
     a = Asset.query.filter_by(id=asset_id, user_id=current_user.id).first_or_404()
     if request.form.get("add_hours"):
         a.time_invested_hours = (a.time_invested_hours or 0) + float(request.form["add_hours"])
+    elif request.form.get("_action") == "edit":
+        a.name             = request.form.get("name", a.name).strip()
+        a.description      = request.form.get("description", a.description)
+        a.type             = request.form.get("type", a.type)
+        a.complexity_tier  = request.form.get("complexity_tier", a.complexity_tier)
+        a.tech_stack       = request.form.get("tech_stack", a.tech_stack)
+        a.status           = request.form.get("status", a.status)
+        if request.form.get("time_invested_hours"):
+            a.time_invested_hours = float(request.form["time_invested_hours"])
+        flash("Asset updated.", "success")
     else:
         a.status = request.form.get("status", a.status)
         if request.form.get("time_invested_hours"):
@@ -237,7 +256,7 @@ def update_asset(asset_id):
 
 @app.route("/assets/<int:asset_id>/streams", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def add_stream(asset_id):
     Asset.query.filter_by(id=asset_id, user_id=current_user.id).first_or_404()
     db.session.add(Stream(
@@ -257,20 +276,26 @@ def add_stream(asset_id):
 
 @app.route("/sprint")
 @login_required
-@tier_required("starter")
+
 def sprint_board():
     active     = Sprint.query.filter_by(status="active", user_id=current_user.id).order_by(Sprint.created_at.desc()).first()
     all_assets_for_sprint = Asset.query.filter_by(user_id=current_user.id).order_by(Asset.name).all() if active else []
     all_sprints = Sprint.query.filter_by(user_id=current_user.id).order_by(Sprint.created_at.desc()).all()
+    has_assets = Asset.query.filter_by(user_id=current_user.id).first() is not None
     return render_template("sprint.html", sprint=active,
                            all_assets_for_sprint=all_assets_for_sprint,
-                           all_sprints=all_sprints)
+                           all_sprints=all_sprints,
+                           has_assets=has_assets)
 
 
 @app.route("/sprints", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def create_sprint():
+    existing = Sprint.query.filter_by(user_id=current_user.id, status="active").first()
+    if existing:
+        flash(f'You already have an active sprint "{existing.name}". Complete it before starting a new one.', "error")
+        return redirect(url_for("sprint_board"))
     db.session.add(Sprint(
         user_id=current_user.id,
         name=request.form["name"],
@@ -285,7 +310,7 @@ def create_sprint():
 
 @app.route("/sprints/<int:sprint_id>/update", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def update_sprint(sprint_id):
     s = Sprint.query.filter_by(id=sprint_id, user_id=current_user.id).first_or_404()
     s.name       = request.form.get("name", s.name)
@@ -300,7 +325,7 @@ def update_sprint(sprint_id):
 
 @app.route("/sprints/<int:sprint_id>/complete", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def complete_sprint(sprint_id):
     Sprint.query.filter_by(id=sprint_id, user_id=current_user.id).first_or_404().status = "completed"
     db.session.commit()
@@ -310,13 +335,20 @@ def complete_sprint(sprint_id):
 
 @app.route("/sprints/<int:sprint_id>/assign", methods=["POST"])
 @login_required
-@tier_required("starter")
+@tier_required("lifetime")
 def assign_asset(sprint_id):
     Sprint.query.filter_by(id=sprint_id, user_id=current_user.id).first_or_404()
-    a = Asset.query.filter_by(id=int(request.form["asset_id"]), user_id=current_user.id).first_or_404()
-    a.sprint_id   = sprint_id
-    a.sprint_week = int(request.form.get("sprint_week", 1))
+    checked_ids = {int(x) for x in request.form.getlist("asset_ids")}
+    for a in Asset.query.filter_by(user_id=current_user.id).all():
+        if a.id in checked_ids:
+            a.sprint_id = sprint_id
+            week = request.form.get(f"week_{a.id}", "").strip()
+            a.sprint_week = int(week) if week else None
+        elif a.sprint_id == sprint_id:
+            a.sprint_id = None
+            a.sprint_week = None
     db.session.commit()
+    flash("Sprint assets updated.", "success")
     return redirect(url_for("sprint_board"))
 
 
@@ -335,6 +367,7 @@ def income():
 
 @app.route("/income", methods=["POST"])
 @login_required
+@tier_required("lifetime")
 def log_income():
     Asset.query.filter_by(id=int(request.form["asset_id"]), user_id=current_user.id).first_or_404()
     db.session.add(IncomeEntry(
@@ -366,6 +399,10 @@ def gig():
 def generate_gig():
     asset        = Asset.query.filter_by(id=int(request.form["asset_id"]), user_id=current_user.id).first_or_404()
     content_type = request.form["content_type"]
+
+    if not asset.description:
+        return '<p class="text-amber-600 text-sm p-4 bg-amber-50 rounded-xl">This asset has no description — <a href="/assets" class="underline font-medium">add one first</a> so the AI has something to work with.</p>'
+
     asset_dict   = {
         "name":                asset.name,
         "description":         asset.description or "",
@@ -376,12 +413,9 @@ def generate_gig():
     }
 
     try:
-        if content_type == "all":
-            raw_results = {ct: fn(asset_dict) for ct, fn in ai._GENERATORS.items()}
-        else:
-            raw_results = {content_type: ai._GENERATORS[content_type](asset_dict)}
+        raw_results = {content_type: ai._GENERATORS[content_type](asset_dict)}
     except Exception as e:
-        return f'<p class="text-red-600 text-sm p-4">Error: {e}</p>', 500
+        return f'<p class="text-red-600 text-sm p-4 bg-red-50 rounded-xl">Error generating copy: {e}</p>'
 
     for ct, content in raw_results.items():
         existing = AIContent.query.filter_by(asset_id=asset.id, content_type=ct).first()
@@ -391,14 +425,105 @@ def generate_gig():
             db.session.add(AIContent(asset_id=asset.id, content_type=ct, content=content))
     db.session.commit()
 
+    def strip_fences(text):
+        text = (text or "").strip()
+        if text.startswith("```"):
+            text = re.sub(r'^```(?:json)?\s*', '', text)
+            text = re.sub(r'\s*```$', '', text.strip())
+        return text.strip()
+
     results = {}
     for ct, content in raw_results.items():
         try:
-            results[ct] = json.loads(content)
+            results[ct] = json.loads(strip_fences(content))
         except (json.JSONDecodeError, TypeError):
             results[ct] = {"raw": content}
 
     return render_template("partials/gig_result.html", results=results)
+
+
+# ── Stripe ────────────────────────────────────────────────────────────────────
+
+@app.route("/subscribe/success")
+@login_required
+def subscribe_success():
+    flash("Payment successful — you're all set!", "success")
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/subscribe/<tier>")
+@login_required
+def subscribe(tier):
+    if tier not in _STRIPE_PRICES:
+        return redirect(url_for("index"))
+    price_id = _STRIPE_PRICES[tier]()
+    kwargs = {}
+    session = stripe.checkout.Session.create(
+        customer_email=current_user.email,
+        client_reference_id=str(current_user.id),
+        line_items=[{"price": price_id, "quantity": 1}],
+        mode="payment" if tier == "lifetime" else "subscription",
+        success_url=url_for("subscribe_success", _external=True),
+        cancel_url=url_for("index", _external=True),
+        **kwargs,
+    )
+    return redirect(session.url)
+
+
+@app.route("/stripe/webhook", methods=["POST"])
+def stripe_webhook():
+    payload = request.get_data()
+    sig = request.headers.get("Stripe-Signature", "")
+    try:
+        event = stripe.Webhook.construct_event(payload, sig, config.STRIPE_WEBHOOK_SECRET)
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return "", 400
+
+    data = json.loads(payload)
+    event_type = data["type"]
+    obj = data["data"]["object"]
+
+    if event_type == "checkout.session.completed":
+        user_id = int(obj.get("client_reference_id") or 0)
+        user = db.session.get(User, user_id)
+        if user:
+            user.tier = "lifetime" if obj.get("mode") == "payment" else "pro"
+            user.stripe_customer_id = obj.get("customer")
+            user.stripe_subscription_id = obj.get("subscription")
+            db.session.commit()
+
+    elif event_type == "customer.subscription.deleted":
+        user = User.query.filter_by(stripe_subscription_id=obj.get("id")).first()
+        if user:
+            user.tier = "lifetime"
+            user.stripe_subscription_id = None
+            db.session.commit()
+
+    return "", 200
+
+
+@app.route("/tutorial")
+@login_required
+def tutorial():
+    return render_template("tutorial.html")
+
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
+@app.route("/upgrade")
+@login_required
+def upgrade_page():
+    feature = request.args.get("feature", "")
+    required = request.args.get("required", "pro")
+    return render_template("upgrade.html", feature=feature, required=required)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,7 @@
-# Earnstack → Ship & Earn — Roadmap
+# Ship & Earn — Roadmap
 
-> ⚠️ **Rebrand required before public launch.** "Earnstack" is a registered UK company (EARNSTACK LIMITED, Companies House) and earnstack.com is an active competing product. New name: **Ship & Earn**.
->
-> **Domains purchased (Cloudflare):** `shipandearn.com` (primary) + `shipandearn.dev` (alias)
-> `earnstack.dev` — consider selling directly to EARNSTACK LIMITED.
->
-> **TODO before v1.0.0 launch:** rename throughout codebase, update all templates, redeploy to shipandearn.com.
+> **Domains:** `shipandearn.com` (primary) + `shipandearn.dev` (alias) — both on Cloudflare, pointing at the Droplet.
+> `earnstack.dev` — owned by Seraphina, consider selling.
 
 **Goal:** help creative engineers turn what they build into stacked income — products, gigs, and services from every asset.
 
@@ -34,7 +30,7 @@ Every build generates three income streams — the Triple Loop:
 
 ---
 
-## Earnstack Release Roadmap
+## Ship & Earn Release Roadmap
 
 ### v0.1.1 — completed (micro-earnings foundation)
 - [x] Prolific poller (Bearer token auth)
@@ -64,7 +60,7 @@ Ground-up redesign around the creative engineering income model.
 
 ### v1.0.0 — Commercial Launch (next)
 
-Open Earnstack to other creative engineers. Position: *"The income cockpit for indie developers."*
+Open Ship & Earn to other creative engineers. Position: *"The income cockpit for indie developers."*
 
 Scope is intentionally lean — get a paying user live, then let real usage drive v1.1+.
 
@@ -72,17 +68,23 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 | Tier | Price | Features |
 |---|---|---|
-| **Lifetime Basic** | £1.99 one-time | Dashboard + income tracker forever — sold on Gumroad, redeemable at earnstack.dev |
-| **Starter** | £4.99/mo | + Sprint Board + asset library |
-| **Pro** | £12.99/mo | + AI Gig Generator + reports — *Coming Soon* |
-| **Studio** | £29.99/mo | + white-labelling + teams — *Coming Soon* |
+| **Lifetime** | £4.99 one-time | Dashboard + income tracker + asset library + sprint board — forever |
+| **Pro** | £12.99/mo | Everything + unlimited AI Gig Generator |
+| **Studio** | £29.99/mo | Everything in Pro + white-labelling + teams — *Coming Soon* |
+
+**Pay-as-you-go (v1.1)**
+- **Gig Credits** — £1.99 per generation, no subscription needed
+- Lowers barrier for casual users; power users upgrade to Pro
 
 **Must-haves (launch blockers)**
-- [ ] Multi-user auth — email + password via Flask-Login + Werkzeug (no third-party auth services)
-- [ ] Per-user data isolation
-- [ ] Stripe subscription + 14-day free trial (handles EU VAT automatically)
-- [ ] Feature gating — Sprint Board + Gig Generator behind Starter tier; dashboard + income tracker free on Lifetime Basic
-- [ ] Public landing page + pricing page
+- [x] Multi-user auth — email + password via Flask-Login + Werkzeug (no third-party auth services)
+- [x] Per-user data isolation
+- [x] Stripe checkout + webhook (lifetime one-time + Pro subscription)
+- [x] Feature gating — Gig Generator behind Pro; everything else on Lifetime
+- [x] Public landing page + pricing page
+- [ ] Upgrade CTA on locked feature pages (not just a flash message)
+- [ ] Gig Generator demo/preview for non-Pro users
+- [ ] Stripe products created + price IDs in .env
 
 **Distribution (at launch)**
 - [ ] Product Hunt / Indie Hackers

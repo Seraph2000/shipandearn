@@ -1,116 +1,118 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — Earnstack{% endblock %}
+{% block title %}Dashboard — Ship & Earn{% endblock %}
 {% block content %}
 
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-6 md:mb-8">
   <div>
-    <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
-    <p class="text-slate-400 text-sm mt-0.5">{{ today.strftime('%A, %d %B %Y') }}</p>
+    <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+    <p class="text-slate-500 text-sm mt-0.5">{{ today.strftime('%A, %d %B %Y') }}</p>
   </div>
 </div>
 
 <!-- Metrics -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-    <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Today</p>
-    <p class="text-2xl font-bold text-slate-900 mt-1">£{{ "%.2f"|format(summary.today) }}</p>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-5 md:mb-6">
+  <div class="rounded-2xl p-4 md:p-5 shadow-sm" style="background: #0ea5e9;">
+    <p class="text-xs font-medium uppercase tracking-widest mb-2 md:mb-3" style="color: rgba(255,255,255,0.7);">Today</p>
+    <p class="text-2xl md:text-3xl font-bold text-white">£{{ "%.2f"|format(summary.today) }}</p>
   </div>
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-    <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">This month</p>
-    <p class="text-2xl font-bold text-slate-900 mt-1">£{{ "%.2f"|format(summary.this_month) }}</p>
+  <div class="rounded-2xl p-4 md:p-5 shadow-sm" style="background: #0ea5e9;">
+    <p class="text-xs font-medium uppercase tracking-widest mb-2 md:mb-3" style="color: rgba(255,255,255,0.7);">This month</p>
+    <p class="text-2xl md:text-3xl font-bold text-white">£{{ "%.2f"|format(summary.this_month) }}</p>
   </div>
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-    <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">All time</p>
-    <p class="text-2xl font-bold text-slate-900 mt-1">£{{ "%.2f"|format(summary.all_time) }}</p>
+  <div class="rounded-2xl p-4 md:p-5 shadow-sm" style="background: #0ea5e9;">
+    <p class="text-xs font-medium uppercase tracking-widest mb-2 md:mb-3" style="color: rgba(255,255,255,0.7);">All time</p>
+    <p class="text-2xl md:text-3xl font-bold text-white">£{{ "%.2f"|format(summary.all_time) }}</p>
   </div>
   {% if goal %}
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-    <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">{{ goal.label }}</p>
-    <p class="text-2xl font-bold text-slate-900 mt-1">{{ goal.pct }}%</p>
-    <div class="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden">
-      <div class="h-full rounded-full transition-all" style="width: {{ [goal.pct, 100]|min }}%; background: #00b4ff; box-shadow: 0 0 8px #00b4ff;"></div>
+  <div class="rounded-2xl p-4 md:p-5 shadow-sm" style="background: #0ea5e9;">
+    <p class="text-xs font-medium uppercase tracking-widest mb-2 md:mb-3" style="color: rgba(255,255,255,0.7);">🎯 {{ goal.label }}</p>
+    <p class="text-2xl md:text-3xl font-bold text-white">{{ goal.pct }}%</p>
+    <div class="mt-2 md:mt-3 h-1.5 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.3);">
+      <div class="h-full rounded-full transition-all duration-500 ease-out"
+           style="width: {{ [goal.pct, 100]|min }}%; background: white;"></div>
     </div>
-    <p class="text-xs text-slate-400 mt-1">£{{ "%.2f"|format(goal.gap_gbp) }} to go</p>
+    <p class="text-xs mt-1.5" style="color: rgba(255,255,255,0.75);">£{{ "%.2f"|format(goal.gap_gbp) }} to go</p>
   </div>
   {% else %}
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100 border-dashed">
-    <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Goal</p>
-    <a href="#set-goal" class="text-sm text-indigo-500 hover:text-indigo-600 mt-2 block">Set a goal →</a>
+  <div class="rounded-2xl p-4 md:p-5 shadow-sm" style="background: #0ea5e9;">
+    <p class="text-xs font-medium uppercase tracking-widest mb-2 md:mb-3" style="color: rgba(255,255,255,0.7);">🎯 Goal</p>
+    <a href="{{ url_for('upgrade_page', feature='set_goal', required='lifetime') if current_user.tier == 'demo' else '#set-goal' }}"
+       class="text-sm font-semibold text-white hover:underline">Set a goal →</a>
   </div>
   {% endif %}
 </div>
 
-<!-- Charts row -->
-<div class="grid grid-cols-2 gap-6 mb-8">
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-    <h2 class="text-sm font-semibold text-slate-700 mb-4">By stream</h2>
+<!-- Charts + goal form -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+  <div class="rounded-2xl p-5 shadow-sm" style="background: #0ea5e9;">
+    <h2 class="text-xs font-medium uppercase tracking-widest mb-4" style="color: rgba(255,255,255,0.7);">By stream</h2>
     {% if summary.by_stream %}
     <table class="w-full text-sm">
       {% for stream_type, total in summary.by_stream.items() %}
-      <tr class="border-b border-slate-50 last:border-0">
-        <td class="py-2 capitalize text-slate-600">{{ stream_type }}</td>
-        <td class="py-2 text-right font-semibold text-slate-900">£{{ "%.2f"|format(total) }}</td>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+        <td class="py-2 capitalize text-white">{{ stream_type }}</td>
+        <td class="py-2 text-right font-semibold text-white">£{{ "%.2f"|format(total) }}</td>
       </tr>
       {% endfor %}
     </table>
     {% else %}
-    <p class="text-sm text-slate-400">No income logged yet.</p>
+    <p class="text-sm" style="color: rgba(255,255,255,0.7);">No income logged yet.</p>
     {% endif %}
   </div>
 
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
-    <h2 class="text-sm font-semibold text-slate-700 mb-4">Top earners</h2>
+  <div class="rounded-2xl p-5 shadow-sm" style="background: #0ea5e9;">
+    <h2 class="text-xs font-medium uppercase tracking-widest mb-4" style="color: rgba(255,255,255,0.7);">Top earners</h2>
     {% if summary.by_asset %}
     <table class="w-full text-sm">
       {% for row in summary.by_asset[:6] %}
-      <tr class="border-b border-slate-50 last:border-0">
-        <td class="py-2 text-slate-600">{{ row.name }}</td>
-        <td class="py-2 text-right font-semibold text-slate-900">£{{ "%.2f"|format(row.total) }}</td>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+        <td class="py-2 text-white">{{ row.name }}</td>
+        <td class="py-2 text-right font-semibold text-white">£{{ "%.2f"|format(row.total) }}</td>
       </tr>
       {% endfor %}
     </table>
     {% else %}
-    <p class="text-sm text-slate-400">No assets with income yet.</p>
+    <p class="text-sm" style="color: rgba(255,255,255,0.7);">No assets with income yet.</p>
     {% endif %}
   </div>
-</div>
 
-<!-- Set / update goal -->
-<div id="set-goal" class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 max-w-md">
-  <h2 class="text-sm font-semibold text-slate-700 mb-4">
-    {{ 'Update' if goal else 'Set' }} income goal
-  </h2>
-  <form method="POST" action="/goal">
-    <div class="grid grid-cols-2 gap-3">
-      <div class="col-span-2">
-        <label class="text-xs text-slate-500">Label</label>
+  <!-- Goal form -->
+  <div id="set-goal" class="rounded-2xl p-5 shadow-sm" style="background: #0ea5e9;">
+    <h2 class="text-xs font-medium uppercase tracking-widest mb-4" style="color: rgba(255,255,255,0.7);">
+      {{ 'Update' if goal else 'Set' }} goal
+    </h2>
+    <form method="POST" action="/goal" class="space-y-3">
+      <div>
+        <label class="text-xs" style="color: rgba(255,255,255,0.8);">Label</label>
         <input name="label" type="text" placeholder="June 2026"
                value="{{ goal.label if goal else '' }}"
-               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+               class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-white bg-white">
       </div>
       <div>
-        <label class="text-xs text-slate-500">Target (£)</label>
+        <label class="text-xs" style="color: rgba(255,255,255,0.8);">Target (£)</label>
         <input name="target_gbp" type="number" step="any" min="1"
                value="{{ goal.target_gbp if goal else 900 }}"
-               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+               class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-white bg-white">
       </div>
-      <div></div>
-      <div>
-        <label class="text-xs text-slate-500">Start date</label>
-        <input name="start_date" type="date" value="{{ goal.start_date if goal else '' }}"
-               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-xs" style="color: rgba(255,255,255,0.8);">Start</label>
+          <input name="start_date" type="date" value="{{ goal.start_date if goal else '' }}"
+                 class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-white bg-white">
+        </div>
+        <div>
+          <label class="text-xs" style="color: rgba(255,255,255,0.8);">End</label>
+          <input name="end_date" type="date" value="{{ goal.end_date if goal else '' }}"
+                 class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-white bg-white">
+        </div>
       </div>
-      <div>
-        <label class="text-xs text-slate-500">End date</label>
-        <input name="end_date" type="date" value="{{ goal.end_date if goal else '' }}"
-               class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-      </div>
-    </div>
-    <button type="submit"
-            class="mt-4 bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-      Save goal
-    </button>
-  </form>
+      <button type="submit"
+              class="w-full mt-1 text-sm py-2.5 rounded-lg transition-colors font-semibold"
+              style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4);">
+        Save goal
+      </button>
+    </form>
+  </div>
 </div>
 
 {% endblock %}

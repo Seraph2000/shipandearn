@@ -9,12 +9,11 @@ curl -fsSL https://get.docker.com | sh
 apt-get install -y docker-compose-plugin
 
 # App directory
-mkdir -p /opt/earnstack
-cd /opt/earnstack
+mkdir -p /opt/shipandearn
+cd /opt/shipandearn
 
 echo ""
 echo "Provision complete. Next steps:"
-echo "  1. git clone <repo> /opt/earnstack"
-echo "  2. cp .env.example /opt/earnstack/.env  (fill in all values)"
-echo "  3. Run: flask db init && flask db migrate -m 'initial'  (first deploy only)"
-echo "  4. Run: ./deploy/deploy.sh"
+echo "  1. git clone <repo> /opt/shipandearn"
+echo "  2. cp .env.example /opt/shipandearn/.env  (fill in all values)"
+echo "  3. Run: sudo bash deploy/deploy.sh"

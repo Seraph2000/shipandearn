@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign up — Earnstack</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Sign up — Ship & Earn</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+  <link rel="stylesheet" href="/static/tailwind.css">
 </head>
 <body class="bg-slate-900 min-h-screen flex items-center justify-center">
   <div class="w-full max-w-sm px-4">
     <div class="text-center mb-8">
-      <a href="/" class="text-3xl font-bold text-white tracking-tight">Earnstack</a>
+      <a href="/" class="text-3xl font-bold text-white tracking-tight">Ship & Earn</a>
       <p class="text-slate-400 text-sm mt-1">income command centre</p>
     </div>
     <div class="bg-white rounded-2xl p-8 shadow-xl">
@@ -26,16 +27,16 @@
         {% endfor %}
       {% endif %}
       {% endwith %}
-      <form method="POST" action="/signup" class="space-y-4">
+      <form method="POST" action="/signup{{ ('?next=' + request.args.get('next')) if request.args.get('next') else '' }}" class="space-y-4">
         <div>
           <label class="text-xs text-slate-500 font-medium">Email</label>
           <input name="email" type="email" required autofocus
-                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
         </div>
         <div>
           <label class="text-xs text-slate-500 font-medium">Password</label>
           <input name="password" type="password" required minlength="8"
-                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                 class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
           <p class="text-xs text-slate-400 mt-1">Minimum 8 characters</p>
         </div>
         <button type="submit"

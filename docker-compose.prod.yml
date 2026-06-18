@@ -2,20 +2,26 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-earnstack}
-      POSTGRES_USER: ${POSTGRES_USER:-earnstack}
+      POSTGRES_DB: ${POSTGRES_DB:-shipandearn}
+      POSTGRES_USER: ${POSTGRES_USER:-shipandearn}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shipandearn}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: always
 
   web:
-    image: earnstack:latest
+    image: shipandearn:latest
     env_file: .env
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: always
 
   nginx:

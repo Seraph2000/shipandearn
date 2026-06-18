@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}How it works — Ship & Earn{% endblock %}
+{% block content %}
+
+<div class="max-w-3xl mx-auto">
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-white tracking-tight">How Ship & Earn works</h1>
+    <p class="text-slate-400 text-sm mt-1">Everything you need to go from building to earning.</p>
+  </div>
+
+  <!-- The idea -->
+  <div class="bg-white rounded-2xl p-6 mb-4" style="border: 2px solid rgba(0,200,150,0.65); box-shadow: 0 0 8px rgba(0,200,150,0.25);">
+    <h2 class="text-base font-semibold text-slate-900 mb-2">The idea</h2>
+    <p class="text-sm text-slate-600 leading-relaxed">
+      Every tool, script, template, or app you build is an <strong>asset</strong>. Each asset can earn money three ways simultaneously — as a product you sell, a gig you offer, and a service you deliver. Ship & Earn calls this the <strong>Triple Loop</strong>.
+    </p>
+    <p class="text-sm text-slate-600 leading-relaxed mt-2">
+      The goal: stack assets over time so income compounds. One asset earns a little. Ten assets earn consistently. Twenty assets earn while you sleep.
+    </p>
+  </div>
+
+  <!-- Steps -->
+  <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-8 mb-3">Getting started</h2>
+
+  {% set steps = [
+    (
+      "1",
+      "Create an asset",
+      "/assets",
+      "Go to Assets",
+      "An asset is anything you've built or are building — a script, a tool, a template, a Notion dashboard, a Chrome extension. Give it a name, pick a type and complexity tier, list the tech stack, and save it. That's it.",
+      "💡 Start with what you've already built. Even a small script counts."
+    ),
+    (
+      "2",
+      "Add income streams",
+      "/assets",
+      "Go to Assets",
+      "On each asset card, use the Triple Loop section to add up to three streams — Product, Gig, and Service. For each one, pick a platform (e.g. Gumroad, Fiverr, Upwork) and set a price range. This tells the income tracker where your earnings come from.",
+      "💡 You don't need all three streams. Start with whichever feels closest to ready."
+    ),
+    (
+      "3",
+      "Track your build time",
+      "/assets",
+      "Go to Assets",
+      "Each asset has a built-in timer. Hit Start when you begin working, Pause when you stop, Save time when you're done for the session. The time is added to the asset's total hours invested — useful for working out your effective hourly rate once income comes in.",
+      "💡 Accidentally left the timer running? Hit Edit to correct the time before saving."
+    ),
+    (
+      "4",
+      "Start a sprint",
+      "/sprint",
+      "Go to Sprint Board",
+      "A sprint is a structured build plan. Create one with a name and dates, then assign your assets to weeks. There are two types: Onboarding (for getting your first assets built and listed — take as long as you need) and Release cycle (for shipping updates to existing work). Both let you set your own start and end dates.",
+      "💡 You need at least one asset before you can assign anything to a sprint."
+    ),
+    (
+      "5",
+      "Log income",
+      "/income",
+      "Go to Income",
+      "When an asset earns money, log it here. Pick the asset, the stream type (product / gig / service), the platform, the amount, and the date. The dashboard and goal tracker update instantly.",
+      "💡 You need at least one asset before you can log income."
+    ),
+    (
+      "6",
+      "Watch the dashboard",
+      "/dashboard",
+      "Go to Dashboard",
+      "The dashboard shows today's earnings, this month's earnings, all-time total, and a breakdown by stream and by asset. If you've set an income goal, you'll see your progress there too.",
+      ""
+    ),
+  ] %}
+
+  {% for num, title, href, link_label, body, tip in steps %}
+  <div class="bg-white rounded-2xl p-6 mb-3" style="border: 2px solid rgba(0,200,150,0.65); box-shadow: 0 0 8px rgba(0,200,150,0.25);">
+    <div class="flex items-start gap-4">
+      <span class="flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center"
+            style="background: rgba(0,180,255,0.15); color: #00b4ff;">{{ num }}</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <h3 class="text-sm font-semibold text-slate-900">{{ title }}</h3>
+          <a href="{{ href }}" class="flex-shrink-0 text-xs hover:underline" style="color: #00b4ff;">{{ link_label }} →</a>
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed">{{ body }}</p>
+        {% if tip %}
+        <p class="text-xs text-slate-400 mt-2">{{ tip }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Pro -->
+  <div class="bg-white rounded-2xl p-6 mb-3" style="border: 1px solid rgba(0,180,255,0.35); box-shadow: 0 0 0 1px rgba(0,180,255,0.1); background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);">
+    <div class="flex items-start gap-4">
+      <span class="flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center"
+            style="background: rgba(0,180,255,0.15); color: #00b4ff;">✦</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <h3 class="text-sm font-semibold text-slate-900">Gig Generator <span class="ml-1.5 text-xs font-semibold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full">Pro</span></h3>
+          {% if current_user.tier == 'pro' or current_user.tier == 'studio' %}
+          <a href="/gig" class="flex-shrink-0 text-xs text-green-600 hover:text-green-700">Go to Gig Generator →</a>
+          {% else %}
+          <a href="/subscribe/pro" class="flex-shrink-0 text-xs text-green-600 hover:text-green-700">Upgrade to Pro →</a>
+          {% endif %}
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed">Select an asset and a content type, and the AI writes marketplace-ready copy for you — Fiverr listings, Upwork proposals, product page descriptions, README files. Saves hours of writing per asset.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Definitions -->
+  <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-10 mb-3">Definitions</h2>
+
+  {% set defs = [
+    ("Asset", "Anything you've built or are building that has earning potential — a tool, script, template, plugin, dashboard, or app. Assets are the foundation of everything in Ship & Earn."),
+    ("Triple Loop", "The three income streams every asset can generate simultaneously: Product (sell the thing), Gig (sell your time to customise it), and Service (sell bespoke builds using it as a base)."),
+    ("Income stream", "One of the three ways an asset earns money. Each stream has a type (product / gig / service), a platform (e.g. Gumroad, Fiverr, Upwork), and a price range."),
+    ("Sprint", "A 4-week build plan. You create a sprint, then assign assets to weeks to stay focused on what you're shipping. Sprints keep you moving rather than endlessly tweaking existing work."),
+    ("Onboarding sprint", "Your first sprint type. Designed to get your first assets built, priced, and listed. Set whatever dates work for you — take a week or take three months, it's up to you."),
+    ("Release cycle", "A sprint type for when you already have assets running. Unlike the fixed 4-week onboarding sprint, a release cycle is any length you choose — set your own start and end dates. Use it to plan new releases, improvements, or launches on existing work."),
+    ("Complexity tier", "A label for how big the build is: Quick Win (hours), Medium Build (days), Micro-SaaS (weeks), SaaS (months). Used to set realistic expectations and group assets on the sprint board."),
+    ("Goal", "A named income target for a date range, e.g. 'Earn £900 in June'. The dashboard and sidebar show your progress as a percentage. Gated at Lifetime tier."),
+    ("Time invested", "The total hours you've spent building an asset, tracked via the built-in timer — displayed as H:MM:SS. The small 'hrs' field on each asset card lets you set it manually in decimal hours (e.g. 0.5 = 30 min, 2.0 = 2 hrs). Once income comes in, this gives you an effective hourly rate per asset."),
+    ("Gig Generator", "An AI tool (Pro tier) that writes marketplace copy for your assets — Fiverr listings, Upwork proposals, product descriptions, and README files."),
+  ] %}
+
+  <div class="bg-white rounded-2xl overflow-hidden mb-8" style="border: 2px solid rgba(0,200,150,0.65); box-shadow: 0 0 8px rgba(0,200,150,0.25);">
+    {% for term, definition in defs %}
+    <div class="px-6 py-4 {% if not loop.last %}border-b border-slate-100{% endif %}">
+      <p class="text-sm font-semibold text-slate-900 mb-0.5">{{ term }}</p>
+      <p class="text-sm text-slate-500 leading-relaxed">{{ definition }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

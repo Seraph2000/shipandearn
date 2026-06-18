@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy — Ship & Earn{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-white tracking-tight">Privacy Policy</h1>
+    <p class="text-slate-400 text-sm mt-1">Last updated: 17 June 2026 · Seraphina Anderson Ltd</p>
+  </div>
+
+  <div class="bg-white rounded-2xl p-8 space-y-6 text-sm text-slate-600 leading-relaxed">
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">1. Who we are</h2>
+      <p>Ship & Earn is operated by Seraphina Anderson Ltd. This policy explains what personal data we collect, how we use it, and your rights under UK GDPR and the Data Protection Act 2018. Our contact email for data matters is <a href="mailto:hello@shipandearn.com" class="text-indigo-500 hover:underline">hello@shipandearn.com</a>.</p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">2. What data we collect</h2>
+      <ul class="list-disc list-inside space-y-1">
+        <li><strong>Account data:</strong> your email address and hashed password when you register.</li>
+        <li><strong>Usage data:</strong> assets, income entries, sprint records, and goal data that you enter into the Service.</li>
+        <li><strong>Payment data:</strong> payment processing is handled entirely by Stripe. We do not see or store your card number. We receive a customer ID and subscription status from Stripe.</li>
+        <li><strong>Technical data:</strong> server logs including IP address and browser type, retained for up to 30 days for security purposes.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">3. How we use your data</h2>
+      <ul class="list-disc list-inside space-y-1">
+        <li>To provide and maintain your account and the Service.</li>
+        <li>To process payments and manage your subscription via Stripe.</li>
+        <li>To send transactional emails (e.g. payment receipts, account notices). We do not send marketing emails without your explicit consent.</li>
+        <li>To improve the Service based on aggregated, anonymised usage patterns.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">4. AI features</h2>
+      <p>The Gig Generator sends your asset name, description, type, complexity tier, and tech stack to Anthropic's API to generate copy. No other personal data is shared. Anthropic's use of this data is governed by their own privacy policy. We do not use your data to train AI models.</p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">5. Legal basis for processing</h2>
+      <p>We process your data on the following bases under UK GDPR:</p>
+      <ul class="list-disc list-inside space-y-1 mt-2">
+        <li><strong>Contract:</strong> to fulfil our obligations when you purchase a plan.</li>
+        <li><strong>Legitimate interests:</strong> to operate, secure, and improve the Service.</li>
+        <li><strong>Legal obligation:</strong> where required by law (e.g. financial records).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">6. Data sharing</h2>
+      <p>We do not sell your personal data. We share it only with:</p>
+      <ul class="list-disc list-inside space-y-1 mt-2">
+        <li><strong>Stripe</strong> — payment processing.</li>
+        <li><strong>Anthropic</strong> — AI copy generation (asset data only, see section 4).</li>
+        <li><strong>DigitalOcean</strong> — cloud hosting of the application and database.</li>
+      </ul>
+      <p class="mt-2">All third parties are required to handle your data securely and in accordance with applicable law.</p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">7. Data retention</h2>
+      <p>We retain your account and usage data for as long as your account is active. If you request deletion, we will remove your personal data within 30 days, except where we are required to retain it by law (e.g. financial records for 6 years).</p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">8. Your rights</h2>
+      <p>Under UK GDPR you have the right to:</p>
+      <ul class="list-disc list-inside space-y-1 mt-2">
+        <li>Access the personal data we hold about you.</li>
+        <li>Correct inaccurate data.</li>
+        <li>Request deletion of your data ("right to be forgotten").</li>
+        <li>Object to or restrict processing.</li>
+        <li>Data portability — receive your data in a machine-readable format.</li>
+        <li>Lodge a complaint with the ICO (ico.org.uk) if you believe we have mishandled your data.</li>
+      </ul>
+      <p class="mt-2">To exercise any of these rights, email <a href="mailto:hello@shipandearn.com" class="text-indigo-500 hover:underline">hello@shipandearn.com</a>.</p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">9. Cookies</h2>
+      <p>We use a single session cookie to keep you logged in. We do not use tracking or advertising cookies. No third-party analytics tools are installed on the Service.</p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900 mb-2">10. Changes to this policy</h2>
+      <p>We may update this policy from time to time. We will notify you by email of any material changes. The date at the top of this page reflects the most recent update.</p>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

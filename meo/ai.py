@@ -41,9 +41,8 @@ def _asset_context(asset: dict) -> str:
 def _call(asset: dict, user_prompt: str) -> str:
     client = _get_client()
     response = client.messages.create(
-        model="claude-opus-4-7",
+        model="claude-sonnet-4-6",
         max_tokens=2048,
-        thinking={"type": "adaptive"},
         system=[
             {
                 "type": "text",

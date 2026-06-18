@@ -11,8 +11,10 @@ class User(db.Model, UserMixin):
     id            = db.Column(db.Integer, primary_key=True)
     email         = db.Column(db.String(200), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    tier          = db.Column(db.String(20), nullable=False, default="starter")
-    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    tier                   = db.Column(db.String(20), nullable=False, default="demo")
+    stripe_customer_id     = db.Column(db.String(100), unique=True, nullable=True)
+    stripe_subscription_id = db.Column(db.String(100), unique=True, nullable=True)
+    created_at             = db.Column(db.DateTime, default=datetime.utcnow)
 
     sprints = db.relationship("Sprint", backref="user", lazy=True)
     assets  = db.relationship("Asset",  backref="user", lazy=True)

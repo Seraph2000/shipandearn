@@ -1,0 +1,16 @@
+{
+  "name": "micro_earnings_optimiser",
+  "version": "1.0.0",
+  "description": "**Turn what you build into stacked income — products, gigs, and services from every asset.**",
+  "main": "index.js",
+  "scripts": {
+    "css:build": "tailwindcss -i ./static/tailwind.src.css -o ./static/tailwind.css --minify",
+    "css:watch": "tailwindcss -i ./static/tailwind.src.css -o ./static/tailwind.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}
