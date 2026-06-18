@@ -29,4 +29,3 @@ Thumbs.db
 
 # Node (Tailwind build tooling — built CSS is committed, not node_modules)
 node_modules/
-static/tailwind.src.css

@@ -70,6 +70,25 @@ docker compose exec web flask db upgrade
    - Hostname: `shipandearn`
 3. Note the Droplet's public IP address (currently: `<DROPLET_IP>`)
 
+**SSH key used for this Droplet:** `~/.ssh/shipandearn_do` (previously `earnstack_do` — renamed June 2026).
+
+**SSH config (local `~/.ssh/config`)** — add this so you don't need to specify the key every time:
+```
+Host shipandearn
+    HostName <DROPLET_IP>
+    User seraphina
+    IdentityFile ~/.ssh/shipandearn_do
+
+Host <DROPLET_IP>
+    User seraphina
+    IdentityFile ~/.ssh/shipandearn_do
+```
+
+After adding this, you can SSH with just:
+```bash
+ssh shipandearn
+```
+
 ---
 
 ### 2. Point your domain
@@ -94,6 +113,22 @@ apt-get update && apt-get upgrade -y
 curl -fsSL https://get.docker.com | sh
 apt-get install -y docker-compose-plugin
 mkdir -p /opt/shipandearn
+```
+
+**Create the seraphina user (run once):**
+```bash
+adduser seraphina
+usermod -aG sudo seraphina
+mkdir -p /home/seraphina/.ssh
+cp /root/.ssh/authorized_keys /home/seraphina/.ssh/authorized_keys
+chown -R seraphina:seraphina /home/seraphina/.ssh
+chmod 700 /home/seraphina/.ssh
+chmod 600 /home/seraphina/.ssh/authorized_keys
+```
+
+Give seraphina ownership of the app directory:
+```bash
+sudo chown -R seraphina:seraphina /opt/shipandearn
 ```
 
 ---
@@ -152,10 +187,15 @@ POSTGRES_USER=shipandearn
 POSTGRES_PASSWORD=<same-password>
 ANTHROPIC_API_KEY=<your-key>
 STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_LIFETIME=price_...
-STRIPE_PRICE_STARTER=price_...
+STRIPE_PRICE_PRO=price_...
 ```
+
+**Note on Stripe keys:** local `.env` uses test keys (`sk_test_...`). Prod must use live keys (`sk_live_...`) from the Stripe Dashboard with Live mode toggled on. Price IDs are also different between test and live — copy them from the live Product catalogue.
+
+**Note on database credentials:** the Postgres user/database is named `earnstack` in the existing prod volume (set up before the rename). Leave these as-is — changing them would break the existing database. The naming is internal only.
 
 Generate a secret key:
 ```bash
@@ -167,13 +207,15 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 ### 6. First deploy
 
 ```bash
-ssh root@<DROPLET_IP>
+ssh shipandearn
 cd /opt/shipandearn
 sudo docker build -t shipandearn:latest .
 sudo docker compose -f docker-compose.prod.yml up -d
 ```
 
 This builds the image (including CSS), starts all three containers (web, db, nginx), and runs `flask db upgrade` automatically.
+
+**Important:** `docker-compose.prod.yml` references `image: shipandearn:latest` with no `build:` directive — it does NOT build automatically on `up`. You must always run `docker build` first, then `docker compose up`. The `--build` flag on `docker compose up` will not work here.
 
 Verify:
 ```bash
@@ -219,6 +261,35 @@ sudo docker compose -f docker-compose.prod.yml exec web sh
 # Connect to the database
 sudo docker compose -f docker-compose.prod.yml exec db psql -U shipandearn shipandearn
 ```
+
+---
+
+## Pushing to GitHub from WSL (local machine)
+
+GitHub no longer accepts passwords — use the `gh` CLI to authenticate instead. Run this once:
+
+```bash
+gh auth login
+```
+
+Select:
+- **GitHub.com**
+- **HTTPS**
+- **Login with a web browser**
+
+Follow the browser prompt to authorise. Once done, `git push origin main` works without a password prompt.
+
+**To tag and push a release:**
+```bash
+git tag v1.0.0
+git push origin main
+git push origin v1.0.0
+```
+
+**If `gh auth login` fails** (no browser available in WSL), use a Personal Access Token instead:
+1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate a token with `repo` scope
+3. Run: `git remote set-url origin https://<YOUR_TOKEN>@github.com/Seraph2000/shipandearn.git`
 
 ---
 
@@ -324,6 +395,58 @@ Register the webhook endpoint in the Stripe Dashboard:
 - **Events to listen for:** `checkout.session.completed`, `customer.subscription.deleted`
 
 Copy the signing secret into `.env` on the Droplet as `STRIPE_WEBHOOK_SECRET`.
+
+---
+
+## Troubleshooting
+
+### SSH: permission denied connecting to Droplet
+
+The Droplet was provisioned with the `shipandearn_do` key (originally `earnstack_do`). If you get permission denied:
+
+```bash
+ssh -i ~/.ssh/shipandearn_do seraphina@<DROPLET_IP>
+```
+
+If that works but bare `ssh seraphina@<DROPLET_IP>` doesn't, your `~/.ssh/config` is missing — add it (see section 1 above).
+
+---
+
+### Git: "dubious ownership" error after SSH into Droplet
+
+Happens if the `/opt/shipandearn` directory was created as root but you're logged in as seraphina:
+
+```bash
+git config --global --add safe.directory /opt/shipandearn
+```
+
+If you then get `cannot open '.git/FETCH_HEAD': Permission denied`, fix ownership:
+
+```bash
+sudo chown -R seraphina:seraphina /opt/shipandearn
+```
+
+---
+
+### Docker: "pull access denied for shipandearn" on `docker compose up`
+
+`docker-compose.prod.yml` uses `image: shipandearn:latest` with no registry — it expects a locally built image. Build it first:
+
+```bash
+sudo docker build -t shipandearn:latest .
+sudo docker compose -f docker-compose.prod.yml up -d
+```
+
+Never use `docker compose up --build` with the prod compose file — the `--build` flag has no effect without a `build:` directive.
+
+---
+
+### Stripe: tier doesn't update after live payment
+
+1. Check the webhook destination is registered in Stripe Dashboard → Developers → Webhooks → your endpoint
+2. Confirm `STRIPE_WEBHOOK_SECRET` in prod `.env` matches the signing secret shown on that endpoint (not the local `stripe listen` secret)
+3. Check logs: `sudo docker compose -f docker-compose.prod.yml logs web --tail=50` — look for `POST /stripe/webhook 200`
+4. If the event fired but the app was down, replay it: Stripe Dashboard → Developers → Webhooks → your endpoint → find the event → Resend
 
 ---
 
