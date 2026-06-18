@@ -403,6 +403,18 @@ Work through in order:
 
 ---
 
+## Stripe Payouts
+
+**Where to check your linked bank account:**
+Stripe Dashboard → **Settings → Bank accounts and scheduling** (or search "payouts" in the top search bar).
+
+**Payout schedule:**
+Default is a rolling 7-day delay — a payment made today lands in your bank in 7 days. Change to daily or weekly under **Settings → Payouts schedule**.
+
+**Note:** Stripe pays to a bank account only, not PayPal. Verify the correct UK bank account is linked before real customer payments arrive.
+
+---
+
 ## Stripe Webhooks (production)
 
 Register the webhook endpoint in the Stripe Dashboard:
