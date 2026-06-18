@@ -413,6 +413,10 @@ Default is a rolling 7-day delay — a payment made today lands in your bank in 
 
 **Note:** Stripe pays to a bank account only, not PayPal. Verify the correct UK bank account is linked before real customer payments arrive.
 
+**Current setup:** linked to Starling Bank (updated from Barclays). Payout schedule: 7-day rolling delay — sufficient at current scale and gives a buffer to handle refunds before money leaves Stripe.
+
+**To update bank account:** Settings → Bank accounts and scheduling → Add bank account → enter sort code and account number → set as default → remove old account.
+
 ---
 
 ## Stripe Webhooks (production)
