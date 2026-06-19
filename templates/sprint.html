@@ -170,12 +170,14 @@
     </div>
 
     <!-- Assets by week -->
-    {% set weeks = sprint.assets | groupby('sprint_week') %}
+    {% set scheduled_assets = sprint.assets | selectattr('sprint_week') | list %}
+    {% set unscheduled_assets = sprint.assets | rejectattr('sprint_week') | list %}
+    {% set weeks = scheduled_assets | groupby('sprint_week') %}
     {% if sprint.assets %}
       {% for week, week_assets in weeks %}
       <div class="mb-4">
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-          {{ 'Week ' ~ week if week else 'Unscheduled' }}
+          Week {{ week }}
         </h3>
         <div class="space-y-2">
           {% for a in week_assets %}
@@ -197,6 +199,29 @@
         </div>
       </div>
       {% endfor %}
+      {% if unscheduled_assets %}
+      <div class="mb-4">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Unscheduled</h3>
+        <div class="space-y-2">
+          {% for a in unscheduled_assets %}
+          <div class="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                {{ tier_labels.get(a.complexity_tier, a.complexity_tier) }}
+              </span>
+              <span class="text-sm font-medium text-slate-800">{{ a.name }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded-full {{ status_colors.get(a.status, 'bg-slate-100 text-slate-500') }}">
+                {{ a.status }}
+              </span>
+              <span class="text-xs text-slate-400">⏱ {{ a.time_invested_hours or 0 }}h</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     {% else %}
     <div class="bg-white rounded-xl p-6 text-center border border-slate-100 shadow-sm">
       <p class="text-slate-400 text-sm">No assets assigned yet. Add them using the form →</p>
