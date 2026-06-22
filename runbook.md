@@ -429,6 +429,18 @@ Copy the signing secret into `.env` on the Droplet as `STRIPE_WEBHOOK_SECRET`.
 
 ---
 
+## Google Analytics
+
+GA4 Measurement ID: **G-EPNEVLF3LP**
+Installed in `templates/base.html` — loads on every page automatically.
+
+**Filter out your own traffic (do this before sharing publicly):**
+1. GA4 → Admin → Data Streams → your stream → Configure tag settings → Define internal traffic
+2. Add rule: name "Me", IP address = your public IP (google "what is my ip")
+3. Admin → Data Filters → Create filter → Internal Traffic → set to **Active**
+
+---
+
 ## Troubleshooting
 
 ### SSH: permission denied connecting to Droplet
