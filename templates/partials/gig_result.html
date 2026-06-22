@@ -28,7 +28,7 @@
       {% if data.title %}<p class="font-bold text-white text-base">{{ data.title }}</p>{% endif %}
       {% if data.description %}<p style="color: rgba(255,255,255,0.9);" class="leading-relaxed">{{ data.description }}</p>{% endif %}
       {% if data.packages %}
-      <div class="grid grid-cols-3 gap-3 mt-3">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
         {% for tier, pkg in data.packages.items() %}
         <div class="rounded-xl p-3" style="background: rgba(0,0,0,0.15);">
           <p class="text-xs font-semibold uppercase" style="color: rgba(255,255,255,0.7);">{{ tier }}</p>
