@@ -94,7 +94,7 @@
                value="{{ goal.target_gbp if goal else 900 }}"
                class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-white bg-white">
       </div>
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
           <label class="text-xs" style="color: rgba(255,255,255,0.8);">Start</label>
           <input name="start_date" type="date" value="{{ goal.start_date if goal else '' }}"
