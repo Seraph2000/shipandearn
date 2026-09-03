@@ -48,6 +48,7 @@ class Asset(db.Model):
     name                = db.Column(db.String(200), nullable=False)
     description         = db.Column(db.Text)
     type                = db.Column(db.String(50),  nullable=False, default="tool")
+    asset_class         = db.Column(db.String(20),  nullable=False, default="tech")
     complexity_tier     = db.Column(db.String(50),  nullable=False, default="quick-win")
     status              = db.Column(db.String(50),  nullable=False, default="idea")
     tech_stack          = db.Column(db.String(200))

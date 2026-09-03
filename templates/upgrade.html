@@ -23,8 +23,15 @@
         </svg>
       </div>
 
+      {% if lifetime_promo %}
+      <p class="text-blue-200 text-sm font-semibold uppercase tracking-wide mb-2">Flash sale &mdash; limited time</p>
+      <h1 class="text-4xl font-bold mb-1">
+        £1.99 <span class="text-xl font-normal text-blue-300 line-through">£6.99</span>
+      </h1>
+      {% else %}
       <p class="text-blue-200 text-sm font-semibold uppercase tracking-wide mb-2">One-time purchase</p>
-      <h1 class="text-4xl font-bold mb-1">£4.99</h1>
+      <h1 class="text-4xl font-bold mb-1">£6.99</h1>
+      {% endif %}
       <p class="text-blue-200 text-sm mb-6">Lifetime access &mdash; yours forever</p>
 
       <ul class="space-y-2.5 mb-8">
@@ -46,7 +53,7 @@
       <a href="/subscribe/lifetime"
          class="block text-center font-bold text-base py-4 rounded-xl transition-colors"
          style="background: white; color: #1d4ed8;">
-        Get Lifetime Access &mdash; £4.99
+        {% if lifetime_promo %}Get Lifetime Access &mdash; £1.99{% else %}Get Lifetime Access &mdash; £6.99{% endif %}
       </a>
 
       <p class="text-center text-blue-200 text-xs mt-4">One-time payment &middot; Terms and conditions apply</p>
@@ -103,10 +110,16 @@
       <a href="/subscribe/pro"
          class="block text-center font-bold text-base py-4 rounded-xl transition-colors"
          style="background: white; color: #15803d;">
-        Upgrade to Pro &mdash; £12.99/mo
+        {% if pro_promo %}Start Free {{ pro_trial_days }}-Day Trial{% else %}Upgrade to Pro &mdash; £12.99/mo{% endif %}
       </a>
 
+      {% if pro_promo %}
+      <p class="text-center text-green-200 text-xs mt-4">
+        {{ pro_trial_days }} days free, then £7.99/mo &middot; Cancel anytime &middot; Secure payment via Stripe
+      </p>
+      {% else %}
       <p class="text-center text-green-200 text-xs mt-4">Cancel anytime &middot; Secure payment via Stripe</p>
+      {% endif %}
 
       <a href="/dashboard"
          class="block text-center text-green-200 hover:text-white text-sm mt-5 transition-colors">

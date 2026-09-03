@@ -15,9 +15,40 @@ login_manager = LoginManager()
 
 TIER_RANK = {"demo": 0, "lifetime": 1, "pro": 2, "studio": 3}
 
+
+def _promo_active(price_id, end_date_str):
+    if not price_id:
+        return False
+    try:
+        end = date.fromisoformat(end_date_str)
+    except (TypeError, ValueError):
+        return False
+    return date.today() <= end
+
+
+def lifetime_promo_active():
+    return _promo_active(config.STRIPE_PRICE_LIFETIME_PROMO, config.LIFETIME_PROMO_END)
+
+
+def pro_promo_active():
+    return _promo_active(config.STRIPE_PRICE_PRO_PROMO, config.PRO_PROMO_END)
+
+
+def _lifetime_price():
+    if lifetime_promo_active():
+        return config.STRIPE_PRICE_LIFETIME_PROMO
+    return config.STRIPE_PRICE_LIFETIME_STANDARD or config.STRIPE_PRICE_LIFETIME
+
+
+def _pro_price():
+    if pro_promo_active():
+        return config.STRIPE_PRICE_PRO_PROMO
+    return config.STRIPE_PRICE_PRO
+
+
 _STRIPE_PRICES = {
-    "lifetime": lambda: config.STRIPE_PRICE_LIFETIME,
-    "pro":      lambda: config.STRIPE_PRICE_PRO,
+    "lifetime": _lifetime_price,
+    "pro":      _pro_price,
 }
 
 
@@ -46,6 +77,15 @@ def create_app():
 
 
 app = create_app()
+
+
+@app.context_processor
+def inject_promo_flags():
+    return {
+        "lifetime_promo": lifetime_promo_active(),
+        "pro_promo": pro_promo_active(),
+        "pro_trial_days": config.PRO_TRIAL_DAYS,
+    }
 
 
 @login_manager.user_loader
@@ -189,13 +229,18 @@ def dashboard():
 @login_required
 @tier_required("lifetime")
 def set_goal():
+    start_date = request.form["start_date"]
+    end_date   = request.form["end_date"]
+    if end_date < start_date:
+        flash("End date can't be before the start date.", "error")
+        return redirect(url_for("dashboard"))
     Goal.query.filter_by(active=True, user_id=current_user.id).update({"active": False})
     db.session.add(Goal(
         user_id=current_user.id,
         label=request.form["label"],
         target_gbp=float(request.form["target_gbp"]),
-        start_date=request.form["start_date"],
-        end_date=request.form["end_date"],
+        start_date=start_date,
+        end_date=end_date,
     ))
     db.session.commit()
     return redirect(url_for("dashboard"))
@@ -220,6 +265,7 @@ def create_asset():
         name=request.form["name"],
         description=request.form.get("description", ""),
         type=request.form.get("type", "tool"),
+        asset_class=request.form.get("asset_class", "tech"),
         complexity_tier=request.form.get("complexity_tier", "quick-win"),
         tech_stack=request.form.get("tech_stack", ""),
         time_invested_hours=float(request.form.get("time_invested_hours") or 0),
@@ -240,6 +286,7 @@ def update_asset(asset_id):
         a.name             = request.form.get("name", a.name).strip()
         a.description      = request.form.get("description", a.description)
         a.type             = request.form.get("type", a.type)
+        a.asset_class      = request.form.get("asset_class", a.asset_class)
         a.complexity_tier  = request.form.get("complexity_tier", a.complexity_tier)
         a.tech_stack       = request.form.get("tech_stack", a.tech_stack)
         a.status           = request.form.get("status", a.status)
@@ -389,7 +436,7 @@ def log_income():
 @login_required
 @tier_required("pro")
 def gig():
-    all_assets = Asset.query.filter_by(user_id=current_user.id).order_by(Asset.name).all()
+    all_assets = Asset.query.filter_by(user_id=current_user.id, asset_class="tech").order_by(Asset.name).all()
     return render_template("gig.html", assets=all_assets, content_types=ai.CONTENT_TYPES)
 
 
@@ -397,7 +444,7 @@ def gig():
 @login_required
 @tier_required("pro")
 def generate_gig():
-    asset        = Asset.query.filter_by(id=int(request.form["asset_id"]), user_id=current_user.id).first_or_404()
+    asset        = Asset.query.filter_by(id=int(request.form["asset_id"]), user_id=current_user.id, asset_class="tech").first_or_404()
     content_type = request.form["content_type"]
 
     if not asset.description:
@@ -458,6 +505,8 @@ def subscribe(tier):
         return redirect(url_for("index"))
     price_id = _STRIPE_PRICES[tier]()
     kwargs = {}
+    if tier == "pro" and pro_promo_active():
+        kwargs["subscription_data"] = {"trial_period_days": config.PRO_TRIAL_DAYS}
     session = stripe.checkout.Session.create(
         customer_email=current_user.email,
         client_reference_id=str(current_user.id),

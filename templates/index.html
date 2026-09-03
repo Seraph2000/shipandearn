@@ -97,12 +97,14 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
           <label class="text-xs" style="color: rgba(255,255,255,0.8);">Start</label>
-          <input name="start_date" type="date" value="{{ goal.start_date if goal else '' }}"
+          <input id="goal-start-date" name="start_date" type="date" value="{{ goal.start_date if goal else '' }}"
+                 onchange="document.getElementById('goal-end-date').min = this.value;"
                  class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-white bg-white">
         </div>
         <div>
           <label class="text-xs" style="color: rgba(255,255,255,0.8);">End</label>
-          <input name="end_date" type="date" value="{{ goal.end_date if goal else '' }}"
+          <input id="goal-end-date" name="end_date" type="date" value="{{ goal.end_date if goal else '' }}"
+                 min="{{ goal.start_date if goal else '' }}"
                  class="mt-1 w-full border-0 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-white bg-white">
         </div>
       </div>

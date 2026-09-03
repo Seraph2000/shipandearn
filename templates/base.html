@@ -174,15 +174,23 @@
           {% endif %}
         </div>
         {% if current_user.tier == "demo" %}
+        {% if lifetime_promo %}
+        <p class="text-center text-xs font-semibold mb-1" style="color: #fbbf24;">🔥 Flash sale — limited time</p>
+        {% endif %}
         <a href="/subscribe/lifetime"
            class="block text-center text-sm font-bold text-white px-3 py-2.5 rounded-lg transition-colors"
            style="background: #1d4ed8;">
-          Get Lifetime Access — £4.99
+          {% if lifetime_promo %}Get Lifetime Access — £1.99{% else %}Get Lifetime Access — £6.99{% endif %}
         </a>
+        {% if lifetime_promo %}
+        <p class="text-center text-xs text-slate-500 mt-1">
+          <span class="line-through">£6.99</span> for a limited time
+        </p>
+        {% endif %}
         {% elif current_user.tier == "lifetime" %}
         <a href="/subscribe/pro"
            class="block text-center text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg transition-colors">
-          Upgrade to Pro — £12.99/mo
+          {% if pro_promo %}Try Pro Free for {{ pro_trial_days }} Days{% else %}Upgrade to Pro — £12.99/mo{% endif %}
         </a>
         {% endif %}
         <a href="/tutorial" class="block text-sm font-bold transition-colors" style="color: #00b4ff;">

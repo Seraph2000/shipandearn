@@ -122,6 +122,7 @@ Don't open-source before v1.0.0. Get the hosted SaaS live and taking payments fi
 
 Features validated by real users before being scheduled into a release.
 
+- Forgot password / reset flow — no recovery path exists today if a user forgets their password. Needs a transactional email provider first (none configured yet). See "Password Reset — Tech Spec" in [runbook.md](runbook.md).
 - Triple Loop tracker — marketplace status, gig performance, service pipeline
 - Continuous pipeline mode — replaces sprint once assets are running
 - Asset performance analytics — which builds and platforms earn most
@@ -131,6 +132,7 @@ Features validated by real users before being scheduled into a release.
 - Self-serve gig copy wizard
 - API access + integrations (Upwork, Fiverr, Stripe income sync)
 - Self-hosted licence option
+- Marketing email opt-out for paying customers — separate transactional emails (receipts, account) from promotional ones (flash sales, etc.); let existing customers opt out of the latter without missing the former. Needed before we mailshot the customer base about pricing/promos — UK PECR/GDPR requires a clear unsubscribe path for marketing comms.
 
 **Gig Generator — evolution**
 Currently fun and novel — good enough for v1.0. Needs proper structure in a future release:

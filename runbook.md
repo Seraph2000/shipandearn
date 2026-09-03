@@ -441,6 +441,30 @@ Installed in `templates/base.html` — loads on every page automatically.
 
 ---
 
+## Password Reset — Tech Spec
+
+> Not built yet — spec for the "forgot password" flow, scoped 2026-09-03. No task-tracking system in this repo yet, so this doc is the source of truth until it's implemented.
+
+**Why:** auth is currently email + password via Flask-Login + Werkzeug (`app.py`), with no recovery path if a user forgets their password. There's no email-sending infrastructure in the app at all yet (`requirements.txt`/`config.py` — no Flask-Mail, SMTP, or transactional email provider).
+
+**Scope:**
+
+1. **Email provider (decision pending):** need one transactional-email account before this can be built — nothing to configure server-side yet. Options: Postmark, SendGrid, Resend, or plain SMTP via a Gmail app password (fastest to stand up for testing, no new signup — same pattern already used for `USERTESTING_IMAP_*` in `.env`). Whichever is chosen, add its credentials to `.env`/`.env.example` (e.g. `MAIL_PROVIDER_API_KEY` or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD`) and to the Droplet's prod `.env`.
+
+2. **Reset token:** `itsdangerous.URLSafeTimedSerializer` (already bundled with Flask — no new dependency), keyed off the existing `SECRET_KEY`. Token encodes the user id, expires after 1 hour, single-use in practice since password is changed before it could be reused.
+
+3. **Routes (`app.py`):**
+   - `GET/POST /forgot-password` — form takes an email; on POST, looks up the user and emails a reset link if found. Always flashes the same "check your email" message whether or not the account exists, to avoid leaking which emails are registered.
+   - `GET/POST /reset-password/<token>` — validates the token (expiry + signature), shows a new-password form, calls the existing `user.set_password()` on submit.
+
+4. **Templates:** `templates/auth/forgot_password.html`, `templates/auth/reset_password.html` (match `templates/auth/login.html` styling), plus a plaintext/HTML reset email template. Add a "Forgot password?" link on `templates/auth/login.html`.
+
+5. **Abuse protection:** basic rate limiting on `/forgot-password` (e.g. per-IP or per-email cooldown) so it can't be used to spam a user's inbox or enumerate accounts.
+
+**Out of scope for v1:** account email verification, magic-link login — this is password reset only.
+
+---
+
 ## Troubleshooting
 
 ### SSH: permission denied connecting to Droplet
