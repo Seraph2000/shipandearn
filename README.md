@@ -1,14 +1,8 @@
 # Ship & Earn
 
-**Turn what you build into stacked income — products, gigs, and services from every asset.**
+**See all your income in one place, whatever you earn it from.**
 
-Ship & Earn is an income command centre. You add the things you build or do (tools, plugins, templates, SaaS products, freelance work, rentals, creative projects). For each one, it helps you open up to three income streams (the [Triple Loop](#the-triple-loop)):
-
-- **Product:** sell the thing itself
-- **Gig:** sell setup or customisation of it
-- **Service:** sell bespoke work using the same skills
-
-It also tracks what you're earning and writes your marketplace copy for you.
+Ship & Earn is a simple dashboard for people who earn money in lots of small ways. You add each thing that makes you money, log what it earns, and see your monthly total at a glance. For each one, it shows where else it could earn: you could sell the thing itself, charge to set it up for someone, or offer your skills as a paid service.
 
 Live at [shipandearn.com](https://shipandearn.com).
 
@@ -16,33 +10,33 @@ Live at [shipandearn.com](https://shipandearn.com).
 
 ## Who it's for
 
-- **Indie developers and creative engineers** who ship side projects and want to turn each one into income
-- **Freelancers and gig workers** juggling several platforms (Fiverr, Upwork, Mercor, direct clients) who want one place to see what's coming in
-- **Anyone with several small income streams** — including non-tech ones such as rentals, creative work or tasks — who wants to see their monthly total at a glance
+- **People with several side incomes**: a room on Airbnb, a weekend catering job, selling art at markets, odd jobs, plus a bit of online work
+- **Freelancers and gig workers** spread across several platforms or clients (Fiverr, Upwork, Mercor, direct clients)
+- **Makers and developers** who build apps, tools, templates or plugins and want to earn from them
 
 ---
 
-## The Triple Loop
+## What you can track
 
-Every asset you build has three income streams waiting to be activated:
+| Type | Examples |
+|---|---|
+| **Things you've built** | Apps, tools, plugins, templates, websites |
+| **Non-tech income** | Rentals (e.g. Airbnb), creative work (art, crafts, photography), tasks and odd jobs, small businesses (e.g. catering), grants and funding |
+| **Freelance and gig work** | AI training, contract development, writing, consulting |
 
-| Stream | What it is | Example platforms |
-|---|---|---|
-| **Product** | Sell the thing itself | Gumroad, Ko-fi, Itch.io |
-| **Gig** | Sell setup, customisation, integration | Fiverr, Upwork |
-| **Service** | Sell bespoke builds using the same skills | Upwork, direct clients |
+If something doesn't fit a category, you can make up your own.
 
 ---
 
 ## Features
 
-- **Asset Library** — track tech assets, non-tech assets and freelance/gig work, with status, stack or client, and time invested (with a built-in timer)
-- **Triple Loop tracker** — log the product listing, gig and service offering for each asset, with platform, pricing and status
-- **Sprint Board** — organise builds into 4-week sprints or release cycles and assign assets by week
-- **Gig Generator** — AI-written Fiverr gigs, Upwork listings, product descriptions and GitHub READMEs for each asset (powered by Claude)
-- **Income log** — record, edit and delete payments by asset, stream and platform
-- **Goal tracking** — set a monthly income target and watch it fill up
-- **Accounts and plans** — email/password auth, with Stripe checkout for the Lifetime and Pro plans
+- **Your income sources:** add everything that earns you money, with its status, the platform or client, and how much time you've put in (there's a built-in timer)
+- **Where you sell it:** record where each one is listed (e.g. Etsy, Fiverr, Airbnb, direct clients), at what price, and whether it's live
+- **Income log:** record every payment as it comes in, and edit or delete entries later
+- **Monthly goal:** set a monthly target and see how close you are
+- **Planner:** plan your work in 4-week blocks, week by week
+- **Listing writer:** AI drafts listings and descriptions for you (Fiverr, Upwork, product pages, GitHub READMEs), powered by Claude
+- **Accounts and plans:** sign up with email and password, and pay for the Lifetime or Pro plan with Stripe
 
 ---
 
@@ -72,7 +66,7 @@ Edit `.env` and set at least:
 | Variable | Needed for | Where to get it |
 |---|---|---|
 | `SECRET_KEY` | Sessions (required) | Any long random string |
-| `ANTHROPIC_API_KEY` | Gig Generator | [console.anthropic.com](https://console.anthropic.com) |
+| `ANTHROPIC_API_KEY` | AI listing writer | [console.anthropic.com](https://console.anthropic.com) |
 | `STRIPE_*` | Checkout/upgrades (optional locally) | Stripe Dashboard → test mode |
 
 Then start the app and database:
@@ -93,7 +87,7 @@ For production deployment, see [runbook.md](runbook.md).
 app.py            Flask routes and app setup
 models.py         SQLAlchemy models
 config.py         Settings loaded from .env
-meo/ai.py         Claude-powered Gig Generator
+meo/ai.py         AI listing writer (Claude)
 templates/        Jinja2 templates (HTMX + Tailwind)
 migrations/       Alembic database migrations
 scripts/          One-off admin scripts (e.g. Stripe promo prices)
