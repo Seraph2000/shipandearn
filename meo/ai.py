@@ -2,7 +2,7 @@ import config
 
 _client = None
 
-_SYSTEM_PROMPT = """You are Earnstack's Gig Generator — an expert copywriter and technical marketer \
+_SYSTEM_PROMPT = """You are Ship & Earn's Gig Generator — an expert copywriter and technical marketer \
 who specialises in turning software tools, plugins, templates, and micro-SaaS products into compelling \
 marketplace listings.
 

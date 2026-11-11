@@ -70,7 +70,7 @@ docker compose exec web flask db upgrade
    - Hostname: `shipandearn`
 3. Note the Droplet's public IP address (currently: `<DROPLET_IP>`)
 
-**SSH key used for this Droplet:** `~/.ssh/shipandearn_do` (previously `earnstack_do` — renamed June 2026).
+**SSH key used for this Droplet:** `~/.ssh/shipandearn_do`.
 
 **SSH config (local `~/.ssh/config`)** — add this so you don't need to specify the key every time:
 ```
@@ -510,7 +510,7 @@ Until v1.1.1, GA4 only ever recorded the account holder's own logged-in activity
 
 ### SSH: permission denied connecting to Droplet
 
-The Droplet was provisioned with the `shipandearn_do` key (originally `earnstack_do`). If you get permission denied:
+The Droplet was provisioned with the `shipandearn_do` key. If you get permission denied:
 
 ```bash
 ssh -i ~/.ssh/shipandearn_do seraphina@<DROPLET_IP>

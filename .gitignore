@@ -1,5 +1,16 @@
-# Environment & credentials
+# Environment & credentials — never commit real secrets
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+id_rsa*
+*_do
+*_do.pub
+
+# Private / personal notes — keep anything confidential in private/
+private/
 
 # Virtual environment
 venv/
@@ -29,3 +40,6 @@ Thumbs.db
 
 # Node (Tailwind build tooling — built CSS is committed, not node_modules)
 node_modules/
+
+# Claude Code local settings
+.claude/settings.local.json

@@ -1,11 +1,5 @@
 # To-Do
 
-## Quick wins (do these anytime)
-
-- [ ] **Sell earnstack.dev** — find the registered owner via Companies House, email to offer the domain. Don't name a price first. Expect £500–2,000+ if they want it.
-
----
-
 ## Before v1.0.0 launch
 
 - [x] Rebrand throughout codebase — replace all "Earnstack" references with "Ship & Earn" ✓

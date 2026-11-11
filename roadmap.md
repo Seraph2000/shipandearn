@@ -1,7 +1,6 @@
 # Ship & Earn — Roadmap
 
 > **Domains:** `shipandearn.com` (primary) + `shipandearn.dev` (alias) — both on Cloudflare, pointing at the Droplet.
-> `earnstack.dev` — owned by Seraphina, consider selling.
 
 **Goal:** help creative engineers turn what they build into stacked income — products, gigs, and services from every asset.
 
@@ -110,28 +109,11 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 ---
 
-### Open Source Strategy (post-v1.0)
+### Open Source Strategy
 
-Don't open-source before v1.0.0. Get the hosted SaaS live and taking payments first.
+The repository is public under the **Apache License 2.0** (see [LICENSE](LICENSE)). The hosted service at shipandearn.com remains the primary way to use Ship & Earn; the source is open so anyone can read, run, and self-host it.
 
-**Sequence:**
-1. v1.0.0 ships → first paying users
-2. Open-source the core under **AGPL v3** — protects against commercial forks (anyone hosting a modified version must also open-source their changes)
-3. Product Hunt launch: *"self-host free / hosted from £4.99/mo"*
-
-**What to open:**
-- Core app (dashboard, sprint board, income tracker, asset library)
-- Data models + migrations
-- Self-host docs + runbook
-- Docker setup
-
-**What stays closed (SaaS-only):**
-- AI Gig Generator prompts
-- Multi-user / team features
-- Stripe integration
-- Analytics + premium dashboard
-
-**Licence change:** update `LICENSE` from proprietary → AGPL v3 at the point of open-sourcing. Until then the repo stays private and proprietary.
+**What's in the repo:** the whole app, including the dashboard, sprint board, income tracker, asset library, Gig Generator, Stripe integration, data models, migrations, Docker setup, and self-host docs.
 
 ---
 
