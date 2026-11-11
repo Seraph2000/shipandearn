@@ -2,7 +2,13 @@
 
 **Turn what you build into stacked income — products, gigs, and services from every asset.**
 
-Ship & Earn is an income command centre. You add the things you build or do (tools, plugins, templates, SaaS products, freelance work, rentals, creative projects). It then helps you earn from each one in three ways, tracks what you're earning, and writes your marketplace copy for you.
+Ship & Earn is an income command centre. You add the things you build or do (tools, plugins, templates, SaaS products, freelance work, rentals, creative projects). For each one, it helps you open up to three income streams (the [Triple Loop](#the-triple-loop)):
+
+- **Product:** sell the thing itself
+- **Gig:** sell setup or customisation of it
+- **Service:** sell bespoke work using the same skills
+
+It also tracks what you're earning and writes your marketplace copy for you.
 
 Live at [shipandearn.com](https://shipandearn.com).
 
