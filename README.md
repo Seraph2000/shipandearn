@@ -2,7 +2,7 @@
 
 **See all your income in one place, whatever you earn it from.**
 
-Ship & Earn is a simple dashboard for people who earn money in lots of small ways. You add each thing that makes you money, log what it earns, and see your monthly total at a glance. For each one, it shows where else it could earn: you could sell the thing itself, charge to set it up for someone, or offer your skills as a paid service.
+Ship & Earn is a dashboard to track your path to financial freedom. It started out for indie devs, and now covers your non-tech gigs too. It's your productivity, finance and accountability app, all in one.
 
 Live at [shipandearn.com](https://shipandearn.com).
 
