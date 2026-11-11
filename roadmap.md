@@ -93,6 +93,23 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 ---
 
+### v1.1.0 — Promo pricing + non-tech assets ✓ shipped
+
+- [x] Non-Tech Asset class — rental, creative, task, venture, funding categories (+ custom)
+- [x] Live promo pricing — flash-sale Lifetime price + Pro trial promo, config-driven end dates
+- [x] Mobile layout fixes across sprint board, goal fields, and grid layouts
+
+---
+
+### v1.2.0 — Freelance tracking + full asset/income CRUD (in progress)
+
+- [x] Freelance / Gig Work asset class — track contract/platform income (Mercor, Upwork, direct clients, etc.) alongside tech and non-tech assets, with its own categories (AI Training, Contract Dev, Writing, Consulting + custom) and a Client/Platform field
+- [x] Delete assets — was create/edit only; deleting now cascades to that asset's income streams and income entries
+- [x] Edit and delete income entries — was log-only; entries can now be corrected or removed after the fact
+- [x] Fixed income history ordering — entries logged on the same date now sort deterministically (secondary sort by id), so edit/delete always act on the intended row
+
+---
+
 ### Open Source Strategy (post-v1.0)
 
 Don't open-source before v1.0.0. Get the hosted SaaS live and taking payments first.

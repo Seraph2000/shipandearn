@@ -280,6 +280,11 @@ def create_asset():
 @tier_required("lifetime")
 def update_asset(asset_id):
     a = Asset.query.filter_by(id=asset_id, user_id=current_user.id).first_or_404()
+    if request.form.get("_action") == "delete":
+        db.session.delete(a)
+        db.session.commit()
+        flash("Asset deleted.", "success")
+        return redirect(url_for("assets"))
     if request.form.get("add_hours"):
         a.time_invested_hours = (a.time_invested_hours or 0) + float(request.form["add_hours"])
     elif request.form.get("_action") == "edit":
@@ -406,7 +411,7 @@ def assign_asset(sprint_id):
 def income():
     entries = (IncomeEntry.query.join(Asset)
                .filter(Asset.user_id == current_user.id)
-               .order_by(IncomeEntry.earned_date.desc()).limit(100).all())
+               .order_by(IncomeEntry.earned_date.desc(), IncomeEntry.id.desc()).limit(100).all())
     all_assets = Asset.query.filter_by(user_id=current_user.id).order_by(Asset.name).all()
     summary    = _income_summary(current_user.id)
     return render_template("income.html", entries=entries, assets=all_assets, summary=summary)
@@ -427,6 +432,33 @@ def log_income():
     ))
     db.session.commit()
     flash("Income logged.", "success")
+    return redirect(url_for("income"))
+
+
+@app.route("/income/<int:income_id>", methods=["POST"])
+@login_required
+@tier_required("lifetime")
+def update_income(income_id):
+    entry = (IncomeEntry.query.join(Asset)
+             .filter(IncomeEntry.id == income_id, Asset.user_id == current_user.id)
+             .first_or_404())
+
+    if request.form.get("_action") == "delete":
+        db.session.delete(entry)
+        db.session.commit()
+        flash("Income entry deleted.", "success")
+        return redirect(url_for("income"))
+
+    asset_id = int(request.form["asset_id"])
+    Asset.query.filter_by(id=asset_id, user_id=current_user.id).first_or_404()
+    entry.asset_id    = asset_id
+    entry.stream_type = request.form.get("stream_type", "")
+    entry.platform    = request.form.get("platform", "")
+    entry.amount_gbp  = float(request.form["amount_gbp"])
+    entry.earned_date = request.form["earned_date"]
+    entry.notes       = request.form.get("notes", "")
+    db.session.commit()
+    flash("Income entry updated.", "success")
     return redirect(url_for("income"))
 
 

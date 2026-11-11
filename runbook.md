@@ -429,15 +429,56 @@ Copy the signing secret into `.env` on the Droplet as `STRIPE_WEBHOOK_SECRET`.
 
 ---
 
+## Stripe: Creating Live Promo Prices
+
+Needed whenever running a promo (flash sale / trial pricing) in production — `STRIPE_PRICE_LIFETIME_PROMO`, `STRIPE_PRICE_LIFETIME_STANDARD`, and `STRIPE_PRICE_PRO_PROMO` in `.env` must point at **live-mode** Stripe Prices, separate from whatever test-mode IDs are in your local `.env`.
+
+**Why separate Price objects:** Stripe Prices are immutable — you can't edit the amount on an existing price. `app.py`'s `_lifetime_price()` / `_pro_price()` pick between pre-created Price IDs based on whether today is before the `*_PROMO_END` date in `.env` — nothing needs to be "reverted" on the Stripe side, the app just stops requesting the promo price ID once the date passes. Creating a new price never touches or archives existing prices, so current subscribers/customers are unaffected.
+
+**Dashboard steps (recommended — avoids using the live secret key in a terminal):**
+
+1. [dashboard.stripe.com](https://dashboard.stripe.com) → toggle **Live mode** (top-right). Everything below must be done in Live mode.
+2. **Product catalog** → open the existing Lifetime product (the one `STRIPE_PRICE_LIFETIME` belongs to).
+3. **+ Add another price** twice:
+   - £1.99, GBP, **One time** → this is `STRIPE_PRICE_LIFETIME_PROMO`
+   - £6.99, GBP, **One time** → this is `STRIPE_PRICE_LIFETIME_STANDARD`
+4. **Product catalog** → open the existing Pro product. **+ Add another price**:
+   - £7.99, GBP, **Recurring → Monthly** → this is `STRIPE_PRICE_PRO_PROMO`
+5. Click into each new price and copy its ID (`price_...`).
+6. On the Droplet, edit `/opt/shipandearn/.env`:
+   ```
+   STRIPE_PRICE_LIFETIME_PROMO=price_...
+   STRIPE_PRICE_LIFETIME_STANDARD=price_...
+   STRIPE_PRICE_PRO_PROMO=price_...
+   LIFETIME_PROMO_END=YYYY-MM-DD
+   PRO_PROMO_END=YYYY-MM-DD
+   ```
+7. Deploy so the app picks up the new values: `sudo bash deploy/deploy.sh`
+
+**Alternative — script:** `scripts/create_promo_prices.py` does steps 2-5 automatically (looks up the existing products from `STRIPE_PRICE_LIFETIME`/`STRIPE_PRICE_PRO`, creates the three prices, prints the IDs). Requires the live secret key in the environment it runs in:
+```bash
+STRIPE_SECRET_KEY=sk_live_... python scripts/create_promo_prices.py
+```
+
+---
+
 ## Google Analytics
 
 GA4 Measurement ID: **G-EPNEVLF3LP**
-Installed in `templates/base.html` — loads on every page automatically.
+Installed in `templates/base.html`, plus `landing.html`, `auth/login.html`, and `auth/signup.html` directly (see "v1.1.1 fix" below — these three don't extend `base.html`, so they need their own copy of the tag).
 
 **Filter out your own traffic (do this before sharing publicly):**
 1. GA4 → Admin → Data Streams → your stream → Configure tag settings → Define internal traffic
 2. Add rule: name "Me", IP address = your public IP (google "what is my ip")
 3. Admin → Data Filters → Create filter → Internal Traffic → set to **Active**
+
+**v1.1.1 fix — anonymous visitors weren't being tracked at all:**
+
+Until v1.1.1, GA4 only ever recorded the account holder's own logged-in activity — every click from Product Hunt, Facebook, etc. was invisible.
+
+- **What was wrong:** the GA tag lived only in `templates/base.html`. Most pages (`dashboard`, `assets`, `income`, etc.) extend `base.html` via `{% extends "base.html" %}`, so they inherit it automatically. But `templates/landing.html`, `templates/auth/login.html`, and `templates/auth/signup.html` are standalone `<!DOCTYPE html>` documents that don't extend `base.html` — so they never included the tag. `landing.html` is exactly what `/` serves to every logged-out visitor, so anyone who followed a marketing link but hadn't signed up yet generated zero GA events.
+- **How it was fixed:** pasted the same `gtag.js` snippet from `base.html`'s `<head>` into the `<head>` of all three standalone templates.
+- **How to spot this class of bug in future:** any new standalone page (one that doesn't start with `{% extends "base.html" %}`) needs the GA snippet added manually — it won't inherit it. Quick check: `grep -rL '{% extends' templates/*.html templates/**/*.html` lists every template that doesn't extend `base.html`; each one should either be a partial (fine to skip, e.g. `partials/gig_result.html`) or carry its own `gtag.js` block.
 
 ---
 

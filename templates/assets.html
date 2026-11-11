@@ -14,6 +14,12 @@
   'venture':  'Venture',
   'funding':  'Funding',
 } %}
+{% set freelance_categories = {
+  'ai_training':  'AI Training',
+  'dev_contract': 'Contract Dev',
+  'writing':      'Writing',
+  'consulting':   'Consulting',
+} %}
 {% set status_colors = {
   'idea':     'bg-slate-100 text-slate-600',
   'building': 'bg-blue-100 text-blue-700',
@@ -128,6 +134,10 @@
           <span class="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">
             {{ nontech_categories.get(a.type, a.type|capitalize) }}
           </span>
+          {% elif a.asset_class == 'freelance' %}
+          <span class="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">
+            {{ freelance_categories.get(a.type, a.type|capitalize) }}
+          </span>
           {% else %}
           <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
             {{ tier_labels.get(a.complexity_tier, a.complexity_tier) }}
@@ -145,6 +155,13 @@
                   class="text-xs text-slate-400 hover:text-indigo-500 transition-colors">
             Edit
           </button>
+          <form method="POST" action="/assets/{{ a.id }}" class="inline"
+                onsubmit="return confirm('Delete this asset? This also deletes its income streams and income entries.')">
+            <input type="hidden" name="_action" value="delete">
+            <button type="submit" class="text-xs text-slate-400 hover:text-red-500 transition-colors">
+              Delete
+            </button>
+          </form>
         </div>
       </div>
 
@@ -157,7 +174,7 @@
           <p>{{ a.description }}</p>
           {% endif %}
           {% if a.tech_stack %}
-          <p class="text-xs text-slate-400">Stack: {{ a.tech_stack }}</p>
+          <p class="text-xs text-slate-400">{{ 'Client/Platform' if a.asset_class == 'freelance' else 'Stack' }}: {{ a.tech_stack }}</p>
           {% endif %}
           <p class="text-xs text-slate-400">⏱ <span id="total-hours-{{ a.id }}">{{ hms(a.time_invested_hours or 0) }}</span> invested</p>
 
@@ -294,6 +311,7 @@
                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400">
             <option value="tech">Tech Asset</option>
             <option value="non_tech">Non-Tech Asset</option>
+            <option value="freelance">Freelance / Gig Work</option>
           </select>
         </div>
 
@@ -329,7 +347,7 @@
         <div id="new-nontech-fields" class="space-y-3 hidden">
           <div>
             <label class="text-xs text-slate-500">Category</label>
-            <select name="type" id="new-category" disabled onchange="handleCategoryChange('new')"
+            <select name="type" id="new-nontech-category" disabled onchange="handleCategoryChange('new', 'nontech')"
                     class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400">
               {% for val, lbl in nontech_categories.items() %}
               <option value="{{ val }}">{{ lbl }}</option>
@@ -337,9 +355,32 @@
               <option value="custom">Custom…</option>
             </select>
           </div>
-          <div id="new-category-custom-wrap" class="hidden">
+          <div id="new-nontech-category-custom-wrap" class="hidden">
             <label class="text-xs text-slate-500">Custom category name</label>
-            <input name="type" id="new-category-custom" type="text" disabled placeholder="e.g. Coaching"
+            <input name="type" id="new-nontech-category-custom" type="text" disabled placeholder="e.g. Coaching"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+        </div>
+
+        <div id="new-freelance-fields" class="space-y-3 hidden">
+          <div>
+            <label class="text-xs text-slate-500">Category</label>
+            <select name="type" id="new-freelance-category" disabled onchange="handleCategoryChange('new', 'freelance')"
+                    class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              {% for val, lbl in freelance_categories.items() %}
+              <option value="{{ val }}">{{ lbl }}</option>
+              {% endfor %}
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <div id="new-freelance-category-custom-wrap" class="hidden">
+            <label class="text-xs text-slate-500">Custom category name</label>
+            <input name="type" id="new-freelance-category-custom" type="text" disabled placeholder="e.g. Translation"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500">Client / Platform</label>
+            <input name="tech_stack" id="new-freelance-client" type="text" disabled placeholder="Mercor, Upwork, direct client…"
                    class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
           </div>
         </div>
@@ -382,6 +423,7 @@
                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400">
             <option value="tech">Tech Asset</option>
             <option value="non_tech">Non-Tech Asset</option>
+            <option value="freelance">Freelance / Gig Work</option>
           </select>
         </div>
 
@@ -417,7 +459,7 @@
         <div id="edit-nontech-fields" class="space-y-3 hidden">
           <div>
             <label class="text-xs text-slate-500">Category</label>
-            <select name="type" id="edit-category" disabled onchange="handleCategoryChange('edit')"
+            <select name="type" id="edit-nontech-category" disabled onchange="handleCategoryChange('edit', 'nontech')"
                     class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400">
               {% for val, lbl in nontech_categories.items() %}
               <option value="{{ val }}">{{ lbl }}</option>
@@ -425,9 +467,32 @@
               <option value="custom">Custom…</option>
             </select>
           </div>
-          <div id="edit-category-custom-wrap" class="hidden">
+          <div id="edit-nontech-category-custom-wrap" class="hidden">
             <label class="text-xs text-slate-500">Custom category name</label>
-            <input name="type" id="edit-category-custom" type="text" disabled placeholder="e.g. Coaching"
+            <input name="type" id="edit-nontech-category-custom" type="text" disabled placeholder="e.g. Coaching"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+        </div>
+
+        <div id="edit-freelance-fields" class="space-y-3 hidden">
+          <div>
+            <label class="text-xs text-slate-500">Category</label>
+            <select name="type" id="edit-freelance-category" disabled onchange="handleCategoryChange('edit', 'freelance')"
+                    class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              {% for val, lbl in freelance_categories.items() %}
+              <option value="{{ val }}">{{ lbl }}</option>
+              {% endfor %}
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <div id="edit-freelance-category-custom-wrap" class="hidden">
+            <label class="text-xs text-slate-500">Custom category name</label>
+            <input name="type" id="edit-freelance-category-custom" type="text" disabled placeholder="e.g. Translation"
+                   class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500">Client / Platform</label>
+            <input name="tech_stack" id="edit-freelance-client" type="text" disabled placeholder="Mercor, Upwork, direct client…"
                    class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
           </div>
         </div>
@@ -482,11 +547,13 @@ function editAsset(data) {
   document.getElementById('edit-time_invested_hours').value = data.time_invested_hours;
   setSelect('edit-asset-class',     data.asset_class || 'tech');
   toggleAssetClass('edit');
-  if (data.asset_class === 'non_tech') {
-    const known = setSelect('edit-category', data.type);
-    if (!known) setSelect('edit-category', 'custom');
-    if (!known) document.getElementById('edit-category-custom').value = data.type;
-    handleCategoryChange('edit');
+  if (data.asset_class === 'non_tech' || data.asset_class === 'freelance') {
+    const kind = data.asset_class === 'non_tech' ? 'nontech' : 'freelance';
+    const known = setSelect('edit-' + kind + '-category', data.type);
+    if (!known) setSelect('edit-' + kind + '-category', 'custom');
+    if (!known) document.getElementById('edit-' + kind + '-category-custom').value = data.type;
+    handleCategoryChange('edit', kind);
+    if (kind === 'freelance') document.getElementById('edit-freelance-client').value = data.tech_stack;
   } else {
     setSelect('edit-type', data.type);
   }
@@ -512,23 +579,28 @@ function setFieldsDisabled(container, disabled) {
 }
 
 function toggleAssetClass(prefix) {
-  const isTech = document.getElementById(prefix + '-asset-class').value === 'tech';
-  const techBlock    = document.getElementById(prefix + '-tech-fields');
-  const nontechBlock = document.getElementById(prefix + '-nontech-fields');
-  techBlock.classList.toggle('hidden', !isTech);
-  nontechBlock.classList.toggle('hidden', isTech);
-  setFieldsDisabled(techBlock, !isTech);
-  document.getElementById(prefix + '-category').disabled = isTech;
-  handleCategoryChange(prefix);
+  const cls = document.getElementById(prefix + '-asset-class').value;
+  const blocks = {
+    tech:      document.getElementById(prefix + '-tech-fields'),
+    non_tech:  document.getElementById(prefix + '-nontech-fields'),
+    freelance: document.getElementById(prefix + '-freelance-fields'),
+  };
+  for (const [key, el] of Object.entries(blocks)) {
+    const active = key === cls;
+    el.classList.toggle('hidden', !active);
+    setFieldsDisabled(el, !active);
+  }
+  handleCategoryChange(prefix, 'nontech');
+  handleCategoryChange(prefix, 'freelance');
 }
 
-function handleCategoryChange(prefix) {
-  const nontechBlock = document.getElementById(prefix + '-nontech-fields');
-  const isNonTech = !nontechBlock.classList.contains('hidden');
-  const sel    = document.getElementById(prefix + '-category');
-  const wrap   = document.getElementById(prefix + '-category-custom-wrap');
-  const custom = document.getElementById(prefix + '-category-custom');
-  if (!isNonTech) {
+function handleCategoryChange(prefix, kind) {
+  const block = document.getElementById(prefix + '-' + kind + '-fields');
+  const isActive = !block.classList.contains('hidden');
+  const sel    = document.getElementById(prefix + '-' + kind + '-category');
+  const wrap   = document.getElementById(prefix + '-' + kind + '-category-custom-wrap');
+  const custom = document.getElementById(prefix + '-' + kind + '-category-custom');
+  if (!isActive) {
     wrap.classList.add('hidden');
     custom.disabled = true;
     return;
@@ -539,13 +611,15 @@ function handleCategoryChange(prefix) {
 }
 
 function disableUnusedCategoryField(prefix) {
-  const nontechBlock = document.getElementById(prefix + '-nontech-fields');
-  if (nontechBlock.classList.contains('hidden')) return;
-  const sel = document.getElementById(prefix + '-category');
-  // Select and custom input share name="type" — only one may submit, so
-  // disable the select just before submission (not on every change, or the
-  // user could never reopen it to pick a different category).
-  sel.disabled = sel.value === 'custom';
+  for (const kind of ['nontech', 'freelance']) {
+    const block = document.getElementById(prefix + '-' + kind + '-fields');
+    if (block.classList.contains('hidden')) continue;
+    const sel = document.getElementById(prefix + '-' + kind + '-category');
+    // Select and custom input share name="type" — only one may submit, so
+    // disable the select just before submission (not on every change, or the
+    // user could never reopen it to pick a different category).
+    sel.disabled = sel.value === 'custom';
+  }
 }
 
 /* ── Timer ─────────────────────────────────────────────────────────────── */
