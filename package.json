@@ -1,6 +1,6 @@
 {
   "name": "shipandearn",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "**Turn what you build into stacked income — products, gigs, and services from every asset.**",
   "main": "index.js",
   "scripts": {

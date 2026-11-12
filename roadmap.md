@@ -57,7 +57,7 @@ Ground-up redesign around the creative engineering income model.
 
 ---
 
-### v1.0.0 — Commercial Launch (next)
+### v1.0.0 — Commercial Launch ✓ shipped
 
 Open Ship & Earn to other creative engineers. Position: *"The income cockpit for indie developers."*
 
@@ -100,12 +100,13 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 ---
 
-### v1.2.0 — Freelance tracking + full asset/income CRUD (in progress)
+### v1.2.0 — Freelance tracking, full asset/income editing, open source ✓ shipped
 
 - [x] Freelance / Gig Work asset class — track contract/platform income (Mercor, Upwork, direct clients, etc.) alongside tech and non-tech assets, with its own categories (AI Training, Contract Dev, Writing, Consulting + custom) and a Client/Platform field
 - [x] Delete assets — was create/edit only; deleting now cascades to that asset's income streams and income entries
 - [x] Edit and delete income entries — was log-only; entries can now be corrected or removed after the fact
 - [x] Fixed income history ordering — entries logged on the same date now sort deterministically (secondary sort by id), so edit/delete always act on the intended row
+- [x] Open-sourced under the Apache License 2.0, with a plain-English README covering tech and non-tech income
 
 ---
 
