@@ -81,14 +81,15 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 - [x] Stripe checkout + webhook (lifetime one-time + Pro subscription)
 - [x] Feature gating — Gig Generator behind Pro; everything else on Lifetime
 - [x] Public landing page + pricing page
-- [ ] Upgrade CTA on locked feature pages (not just a flash message)
-- [ ] Gig Generator demo/preview for non-Pro users
-- [ ] Stripe products created + price IDs in .env
+- [x] Upgrade CTA on locked feature pages: upgrade page + paywall pop-up
+- [ ] Gig Generator demo/preview for non-Pro users → moved to v1.3.0
+- [x] Stripe products created + price IDs in .env
 
 **Distribution (at launch)**
-- [ ] Product Hunt / Indie Hackers
-- [ ] Fiverr/Upwork bundle: *"I'll set up your developer income dashboard"*
-- [ ] GitHub: open-source base with paid hosted version
+- [x] Product Hunt
+- [ ] Indie Hackers → in TODO.md
+- [ ] Fiverr/Upwork bundle: *"I'll set up your developer income dashboard"* → in TODO.md
+- [x] GitHub: open-sourced (Apache 2.0) alongside the paid hosted version
 
 ---
 
@@ -110,6 +111,42 @@ Scope is intentionally lean — get a paying user live, then let real usage driv
 
 ---
 
+### v1.2.1 — Startup crash fix ✓ shipped
+
+- [x] Fixed app failing to start after SQLAlchemy 2.1 changed its default Postgres driver
+- [x] Pinned exact dependency versions so rebuilds can't silently pull breaking upgrades
+- [x] Deploy script pulls code as the deploying user, not root
+
+---
+
+### v1.3.0 — Reliability + accountability (next)
+
+Make the app safe to change, and help users stay on track.
+
+- [ ] **Automated tests** (pytest): sign-up/login, each user only sees their own data, asset and income add/edit/delete, Stripe webhook
+- [ ] **CI** with GitHub Actions: run the tests on every push and pull request
+- [ ] **Dependency updates via Dependabot:** monthly upgrade PRs, checked by CI before merging (avoids another surprise like v1.2.1)
+- [ ] **Health check + uptime alerts:** a `/health` endpoint and an alert when the site goes down
+- [ ] **Forgot password / reset:** needs an email provider first (spec in [runbook.md](runbook.md))
+- [ ] **Earnings per hour:** show what each income source really pays, using the time already logged against it
+- [ ] **Weekly check-in email:** what you earned, hours logged and progress towards your monthly goal (opt-in)
+- [ ] **Gig Generator preview for free users:** one sample result so they can see what Pro unlocks
+
+---
+
+### v1.4.0 — Money insights
+
+See the whole picture, not just what came in.
+
+- [ ] **Income charts:** monthly trend, plus breakdowns by income source and by platform
+- [ ] **Recurring income:** rent, retainers and subscriptions logged automatically each month
+- [ ] **Costs per income source:** e.g. cleaning for an Airbnb, ingredients for catering, platform fees, so you can see profit as well as income
+- [ ] **UK tax-year summary + CSV export:** totals by tax year, ready for Self Assessment
+- [ ] **Other currencies:** amounts are GBP-only today
+- [ ] **Install on your phone (PWA):** log income on the go
+
+---
+
 ### Open Source Strategy
 
 The repository is public under the **Apache License 2.0** (see [LICENSE](LICENSE)). The hosted service at shipandearn.com remains the primary way to use Ship & Earn; the source is open so anyone can read, run, and self-host it.
@@ -123,7 +160,7 @@ The repository is public under the **Apache License 2.0** (see [LICENSE](LICENSE
 Features validated by real users before being scheduled into a release.
 
 - Forgot password / reset flow — no recovery path exists today if a user forgets their password. Needs a transactional email provider first (none configured yet). See "Password Reset — Tech Spec" in [runbook.md](runbook.md).
-- Triple Loop tracker — marketplace status, gig performance, service pipeline
+- Listings tracker upgrades: marketplace status, gig performance, service pipeline
 - Continuous pipeline mode — replaces sprint once assets are running
 - Asset performance analytics — which builds and platforms earn most
 - AI-suggested next build — gaps in your stack, underserved tiers
