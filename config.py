@@ -5,6 +5,14 @@ load_dotenv()
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 DATABASE_URL      = os.getenv("DATABASE_URL", "postgresql://localhost/shipandearn")
+
+# Pin the Postgres driver to psycopg2 (what requirements.txt installs).
+# SQLAlchemy 2.1 changed the default driver for "postgresql://" URLs to
+# psycopg 3, which isn't installed, so the app failed to start.
+for _prefix in ("postgresql://", "postgres://"):
+    if DATABASE_URL.startswith(_prefix):
+        DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len(_prefix):]
+        break
 SECRET_KEY        = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
 
 STRIPE_SECRET_KEY     = os.getenv("STRIPE_SECRET_KEY", "")
